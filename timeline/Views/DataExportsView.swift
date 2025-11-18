@@ -40,7 +40,7 @@ struct DataExportsView: View {
         
         let dtos = visits.map { $0.toDTO() }
         
-        guard let data = try? JSONEncoder().encode(dtos) else {
+        guard let data = try? getJSONEncoder().encode(dtos) else {
             handleError(message: "JSON Encoder returned nil")
             return
         }
@@ -59,7 +59,7 @@ struct DataExportsView: View {
         
         let dtos = places.map { $0.toDTO() }
         
-        guard let data = try? JSONEncoder().encode(dtos) else {
+        guard let data = try? getJSONEncoder().encode(dtos) else {
             handleError(message: "JSON Encoder returned nil")
             return
         }

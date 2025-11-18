@@ -20,28 +20,45 @@ struct PlaceDetailsView: View {
             filter: #Predicate<Visit> { visit in
                 visit.place.id == placeId
             },
-            sort: \.place.name
+            sort: \.timestamp,
+            order: .reverse
         )
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(place.name)
-                .font(.title)
-            Text(place.id.uuidString)
-                .textSelection(.enabled)
-            Text(place.address)
-                .font(.subheadline)
-                .textSelection(.enabled)
-            Text("\(visits.count) Visits")
+        NavigationStack {
             List(visits) { visit in
-                VStack {
+                NavigationLink {
+                    VisitDetailsView(visit: visit)
+                } label: {
                     Text(visit.timestamp.formatted())
                 }
             }
             .listStyle(.plain)
+            .navigationTitle(place.name)
+            .navigationSubtitle(place.address)
+            .toolbar {
+                NavigationLink {
+                    PlaceEditor(place: place)
+                } label: {
+                    Image(systemName: "pencil")
+                }
+                Menu {
+                    NavigationLink {
+                        VisitEditor(visit: nil, visitPlace: place)
+                    } label: {
+                        Label("New visit", systemImage: "plus")
+                    }
+                    Button {}
+                    label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .disabled(true)
+                } label: {
+                    Image(systemName: "ellipsis")
+                }
+            }
         }
-        .padding()
     }
 }
 

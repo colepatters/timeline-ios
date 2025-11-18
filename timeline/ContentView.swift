@@ -13,6 +13,7 @@ enum Tabs: Equatable, Hashable {
     case places
     case settings
     case history
+    case map
 }
 
 
@@ -31,6 +32,9 @@ struct ContentView: View {
             }
             Tab("History", systemImage: "clock", value: .history) {
                 HistoryView()
+            }
+            Tab("Map", systemImage: "map", value: .map) {
+                MapView()
             }
             Tab("Settings", systemImage: "gear", value: .settings) {
                 NavigationView {

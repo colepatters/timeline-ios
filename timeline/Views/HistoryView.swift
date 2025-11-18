@@ -18,7 +18,7 @@ struct HistoryView: View {
             List {
                 ForEach(visits) { visit in
                     NavigationLink {
-                        VisitEditor(visit: visit)
+                        VisitDetailsView(visit: visit)
                     } label: {
                         VStack(alignment: .leading) {
                             Text(visit.timestamp.formatted()).font(.headline)
@@ -29,6 +29,7 @@ struct HistoryView: View {
                 }
             }
             .navigationTitle("History")
+            .navigationSubtitle("\(visits.count) visits")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Menu {

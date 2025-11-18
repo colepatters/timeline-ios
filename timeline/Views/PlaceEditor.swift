@@ -59,6 +59,15 @@ struct PlaceEditor: View {
                 }
             }
         }
+        .onAppear {
+            if let place {
+                self.placeName = place.name
+    //            self.placeNickname = place.nickname
+                self.placeAddress = place.address
+                self.placeLat = String(place.lat)
+                self.placeLon = String(place.lon)
+            }
+        }
     }
     
     func handleMapItemSelection(mapItem: MKMapItem) {
@@ -75,12 +84,22 @@ struct PlaceEditor: View {
     }
     
     func handleSave() {
-        let newPlace = Place(id: nil, name: placeName, address: placeAddress, lat: Double(placeLat)!, lon: Double(placeLon)!)
-        modelContext.insert(newPlace)
+        
+        if let place {
+            place.name = placeName
+//            place.nickname = placeNickname
+            place.address = placeAddress
+            place.lat = Double(placeLat)!
+            place.lon = Double(placeLon)!
+        } else {
+            let newPlace = Place(id: nil, name: placeName, address: placeAddress, lat: Double(placeLat)!, lon: Double(placeLon)!)
+            modelContext.insert(newPlace)
+        }
+        
         dismiss()
     }
 }
 
 #Preview {
-    PlaceEditor()
+    PlaceEditor(place: nil)
 }

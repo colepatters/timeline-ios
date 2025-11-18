@@ -18,7 +18,7 @@ struct HomeView: View {
                         Text("+ New Visit")
                     }
                     NavigationLink {
-                        PlaceEditor()
+                        PlaceEditor(place: nil)
                     } label: {
                         Text("+ New Place")
                     }

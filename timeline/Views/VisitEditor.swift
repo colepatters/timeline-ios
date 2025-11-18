@@ -14,7 +14,7 @@ struct VisitEditor: View {
     
     let visit: Visit?
     
-    @State private var visitPlace: Place?
+    @State var visitPlace: Place? = nil
     @State private var visitTimestamp: Date = Date.now
     
     var body: some View {
@@ -42,9 +42,9 @@ struct VisitEditor: View {
         .onAppear {
             visitTimestamp = Date.now
             
-            if (visit != nil) {
-                visitTimestamp = visit!.timestamp
-                visitPlace = visit!.place
+            if let visit {
+                visitTimestamp = visit.timestamp
+                visitPlace = visit.place
             }
         }
     }

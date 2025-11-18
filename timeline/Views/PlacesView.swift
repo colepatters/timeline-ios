@@ -35,16 +35,17 @@ struct PlacesView: View {
                     }
                 }
             }
-            .navigationTitle("Places")
             .searchable(text: $searchQuery)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     NavigationLink("+") {
-                        PlaceEditor()
+                        PlaceEditor(place: nil)
                             .navigationBarBackButtonHidden(true)
                     }
                 }
             }
+            .navigationTitle("Places")
+            .navigationSubtitle("\(places.count) places registered")
         }
     }
 }

@@ -15,7 +15,7 @@ enum ImportType {
 }
 
 private func handleImportPlaces(_ data: Data, in context: ModelContext) throws -> Void {
-    let placeDTOs = try JSONDecoder().decode([PlaceDTO].self, from: data)
+    let placeDTOs = try getJSONDecoder().decode([PlaceDTO].self, from: data)
     let places: [Place] = placeDTOs.compactMap {
         guard let placeUUID = UUID(uuidString: $0.id) else { return nil }
         return Place(id: placeUUID, name: $0.name, address: $0.address, lat: $0.lat, lon: $0.lon)
@@ -27,7 +27,7 @@ private func handleImportPlaces(_ data: Data, in context: ModelContext) throws -
 }
 
 private func handleImportVisits(_ data: Data, in context: ModelContext) throws -> Void {
-    let visitDTOs = try JSONDecoder().decode([VisitDTO].self, from: data)
+    let visitDTOs = try getJSONDecoder().decode([VisitDTO].self, from: data)
     
     let visits: [Visit] = try visitDTOs.compactMap { dto in
         guard let visitUUID = UUID(uuidString: dto.id),
