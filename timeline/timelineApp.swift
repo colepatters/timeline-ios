@@ -11,14 +11,23 @@ import CoreLocation
 
 @main
 struct timelineApp: App {
-    static let container: ModelContainer = try! ModelContainer(for: LocationSnapshot.self, Place.self, Visit.self)
+    let db: Database
     @State var locationService = LocationService()
+    
+    init() {
+        do {
+            let database = try Database()
+            db = database
+        } catch {
+            fatalError()
+        }
+    }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(Self.container)
+        .modelContainer(self.db.container)
         .environment(locationService)
     }
 }

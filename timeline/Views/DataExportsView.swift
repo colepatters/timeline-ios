@@ -15,6 +15,7 @@ struct DataExportsView: View {
     @Query var locationSnapshots: [LocationSnapshot]
     
     @State private var showFileExporter: Bool = false
+    @State private var fileName: String = "data"
     @State private var fileContent: String = "{}"
     
     @State private var showErrorAlert: Bool = false
@@ -37,14 +38,15 @@ struct DataExportsView: View {
             return
         }
         
-        let data = try? JSONEncoder().encode(visits)
+        let dtos = visits.map { $0.toDTO() }
         
-        if (data == nil) {
+        guard let data = try? JSONEncoder().encode(dtos) else {
             handleError(message: "JSON Encoder returned nil")
             return
         }
         
-        fileContent = String(data: data!, encoding: .utf8)!
+        fileName = "visits"
+        fileContent = String(data: data, encoding: .utf8)!
         showFileExporter = true
     }
     
@@ -55,31 +57,16 @@ struct DataExportsView: View {
             return
         }
         
-        let data = try? JSONEncoder().encode(places)
+        let dtos = places.map { $0.toDTO() }
         
-        if (data == nil) {
+        guard let data = try? JSONEncoder().encode(dtos) else {
             handleError(message: "JSON Encoder returned nil")
             return
         }
         
-        fileContent = String(data: data!, encoding: .utf8)!
+        fileName = "places"
+        fileContent = String(data: data, encoding: .utf8)!
         showFileExporter = true
-    }
-    
-    private func handleExportAll() {
-        let export = DataExport()
-        export.visits = visits
-        export.places = places
-        export.locationSnapshots = locationSnapshots
-        
-        do {
-            fileContent = try export.toJSONString()
-            showFileExporter = true
-        } catch {
-            handleError(message: error.localizedDescription)
-        }
-        
-        
     }
     
     private func handleFileExportCompletion(_:Result<URL, any Error>) {
@@ -92,12 +79,6 @@ struct DataExportsView: View {
         NavigationStack {
             List {
                 Section("Export Visits") {
-                    Toggle(isOn: $visitExportIncludePlaces) {
-                        Text("Include full place data")
-                        Text("By default, the place field only references by ID").font(.subheadline)
-                    }
-                    .disabled(true)
-                    
                     Button {
                         handleExportVisits()
                     } label: {
@@ -107,11 +88,10 @@ struct DataExportsView: View {
                 
                 Section("Export Places") {
                     Button {
-                        
+                        handleExportPlaces()
                     } label: {
                         Text("Export Places")
                     }
-                    .disabled(true)
                 }
                 
                 Section("Export Location Snapshots") {
@@ -121,14 +101,6 @@ struct DataExportsView: View {
                         Text("Export Location Snapshots")
                     }
                     .disabled(true)
-                }
-                
-                Section("Export All") {
-                    Button {
-                        handleExportAll()
-                    } label: {
-                        Text("Export All")
-                    }
                 }
             }
             .navigationTitle("Data Exports")
@@ -141,7 +113,7 @@ struct DataExportsView: View {
         } message: {
             Text("\(errorAlertText)")
         }
-        .fileExporter(isPresented: $showFileExporter, document: JsonFile(initialText: fileContent), contentType: UTType.json, defaultFilename: "data.json", onCompletion: handleFileExportCompletion)
+        .fileExporter(isPresented: $showFileExporter, document: JsonFile(initialText: fileContent), contentType: UTType.json, defaultFilename: "\(fileName).json", onCompletion: handleFileExportCompletion)
     }
     
 }

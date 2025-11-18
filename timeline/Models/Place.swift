@@ -8,8 +8,16 @@
 import Foundation
 import SwiftData
 
+struct PlaceDTO: Codable, Identifiable {
+    var id: String
+    var name: String
+    var address: String
+    var lat: Double
+    var lon: Double
+}
+
 @Model
-class Place: Codable {
+class Place: Identifiable {
     // required to conform to Codable
     enum CodingKeys: CodingKey {
         case id, name, address, lat, lon
@@ -29,23 +37,21 @@ class Place: Codable {
         self.lon = lon
     }
     
-    // required to conform to Codable
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(UUID.self, forKey: .id)
-        self.name = try container.decode(String.self, forKey: .name)
-        self.address = try container.decode(String.self, forKey: .address)
-        self.lat = try container.decode(Double.self, forKey: .lat)
-        self.lon = try container.decode(Double.self, forKey: .lon)
+    static func fromDTO(dto: PlaceDTO) -> Place {
+        return Place(id: UUID(uuidString: dto.id), name: dto.name, address: dto.address, lat: dto.lat, lon: dto.lon)
     }
     
-    // required to conform to Codable
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
-        try container.encode(name, forKey: .name)
-        try container.encode(address, forKey: .address)
-        try container.encode(lat, forKey: .lat)
-        try container.encode(lon, forKey: .lon)
+    func toDTO() -> PlaceDTO {
+        return PlaceDTO(id: self.id.uuidString, name: self.name, address: self.address, lat: self.lat, lon: self.lon)
+    }
+    
+    static func findById(id: UUID, in context: ModelContext) throws -> [Place] {
+        let result = try context.fetch(FetchDescriptor<Place>(
+            predicate: #Predicate { $0.id == id }
+        ))
+        
+        print(result)
+        
+        return result
     }
 }

@@ -15,18 +15,24 @@ struct PlaceDetailsView: View {
     
     init(place: Place) {
         self.place = place
-        
-        _visits = Query(filter: #Predicate<Visit> { visit in
-            visit.place.id == place.id
-        }, sort: \.place.name)
+        let placeId = place.id
+        _visits = Query(
+            filter: #Predicate<Visit> { visit in
+                visit.place.id == placeId
+            },
+            sort: \.place.name
+        )
     }
     
     var body: some View {
         VStack(alignment: .leading) {
             Text(place.name)
                 .font(.title)
+            Text(place.id.uuidString)
+                .textSelection(.enabled)
             Text(place.address)
                 .font(.subheadline)
+                .textSelection(.enabled)
             Text("\(visits.count) Visits")
             List(visits) { visit in
                 VStack {
@@ -43,3 +49,4 @@ struct PlaceDetailsView: View {
     PlaceDetailsView(place: samplePlace)
         .modelContainer(try! ModelContainer.sample())
 }
+
