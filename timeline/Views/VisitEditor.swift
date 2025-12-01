@@ -21,7 +21,7 @@ struct VisitEditor: View {
         NavigationStack {
             Form {
                 NavigationLink {
-                    PlacePicker(externalSelectionHandler: handlePlaceSelection)
+                    PlacePicker(sortByDistance: true, externalSelectionHandler: handlePlaceSelection)
                 } label: {
                     VStack(alignment: .leading) {
                         Text("Place").font(.headline)

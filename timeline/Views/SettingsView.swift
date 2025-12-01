@@ -8,32 +8,47 @@
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
+import MapKit
 
 struct SettingsView: View {
     @State private var locationServiceActive = false
-    @State private var monitorLocatioChanges = false
+    @State private var allowBackgroundLocation = false
     
     @State private var pendingLocationServiceChange = false
     
-    @Environment(LocationService.self) private var locationService
+    @Environment(LocationManager.self) var locationManager: LocationManager
     
     private func handleLocationServiceToggle(newValue: Bool) -> Void {
         pendingLocationServiceChange = true
         
         if (newValue == true) {
-            locationService.requestLocation()
+            locationManager.manager.requestAlwaysAuthorization()
         }
+        
+        pendingLocationServiceChange = false
+    }
+    
+    private func handleBackgroundMonitoringToggle(newValue: Bool) -> Void {
+        
+        if newValue {
+            // turn on background monitoring
+            locationManager.manager.startUpdatingLocation()
+            locationManager.manager.startMonitoringVisits()
+        } else {
+            // turn off background monitoring
+            locationManager.manager.stopMonitoringVisits()
+            locationManager.manager.stopMonitoringVisits()
+        }
+        
     }
     
     var body: some View {
         List {
-            Section(header: Text("Force Updates")) {
+            Section(header: Text("Location Services")) {
                 Button("Force location update") {
-                    
+                    locationManager.manager.requestLocation()
                 }
-                .disabled(true)
-            }
-            Section(header: Text("Abilities")) {
+
                 Toggle(isOn: $locationServiceActive) {
                     HStack() {
                         Text("Location Service")
@@ -42,15 +57,28 @@ struct SettingsView: View {
                         }
                     }
                 }
-                .disabled(true)
                 .disabled(pendingLocationServiceChange)
                 .onChange(of: locationServiceActive) { oldValue, newValue in
                     handleLocationServiceToggle(newValue: newValue)
                 }
-                Toggle(isOn: $monitorLocatioChanges) {
-                    Text("Monitor Location Changes")
+                Toggle(isOn: $allowBackgroundLocation) {
+                    Text("Background monitoring")
                 }
-                .disabled(true)
+                .onChange(of: allowBackgroundLocation) { oldValue, newValue in
+                    handleBackgroundMonitoringToggle(newValue: newValue)
+                }
+                NavigationLink {
+                    LocationSnapshotsView()
+                        .navigationTitle("Location snapshots")
+                } label: {
+                    Text("View location snapshots")
+                }
+                NavigationLink {
+                    LocationVisitsView()
+                        .navigationTitle("Location visits")
+                } label: {
+                    Text("View visits")
+                }
             }
             Section(header: Text("Other Settings")) {
                 NavigationLink {
@@ -60,16 +88,36 @@ struct SettingsView: View {
                 }
                 NavigationLink {
                     DataExportsView()
+                        .navigationTitle("Data Exports")
                 } label: {
                     Text("Data Exports")
                 }
             }
+        }
+        .onAppear {
+            pendingLocationServiceChange = true
+            
+            let locationAuthStatus = locationManager.manager.authorizationStatus
+            switch(locationAuthStatus) {
+            case .authorizedAlways:
+                locationServiceActive = true
+            default:
+                locationServiceActive = false
+            }
+            
+            
+            
+            pendingLocationServiceChange = false
         }
         
     }
 }
 
 #Preview {
+    let modelContainer = try! ModelContainer.sample()
+    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
+    
     SettingsView()
-        .environment(LocationService())
+        .modelContainer(modelContainer)
+        .environment(locationManager)
 }

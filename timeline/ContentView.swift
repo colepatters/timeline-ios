@@ -16,9 +16,9 @@ enum Tabs: Equatable, Hashable {
     case map
 }
 
-
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(ErrorAlertQueue.self) private var errorAlertQueue
     @State private var selectedTab: Tabs = .home
 //    @ObservedObject var locationService: LocationService
     

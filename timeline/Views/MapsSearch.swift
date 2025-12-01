@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import SwiftData
 
 struct MapsSearch: View {
     @State private var searchQuery: String = ""
@@ -14,6 +15,7 @@ struct MapsSearch: View {
     @State private var isSearching: Bool = false
     
     @Environment(\.dismiss) private var dismiss
+    @Environment(LocationManager.self) var locationManager: LocationManager
     
     var handleMapItemSelection: ((_ mapItem: MKMapItem) -> Void)?
     
@@ -49,5 +51,10 @@ struct MapsSearch: View {
 }
 
 #Preview {
+    let modelContainer = try! ModelContainer.sample()
+    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
+    
     MapsSearch()
+        .modelContainer(modelContainer)
+        .environment(locationManager)
 }

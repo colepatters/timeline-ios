@@ -8,5 +8,7 @@
 import Foundation
 
 let sampleLocationSnapshots: [LocationSnapshot] = [
-    LocationSnapshot(lat: 0.000000, lon: 0.00000, timestamp: Date.distantPast)
+    LocationSnapshot(lat: 0.000000, lon: 0.00000, timestamp: Date.now, createdAt: Date.now, systemTags: []),
+    LocationSnapshot(lat: 0.000000, lon: 0.00000, timestamp: Date.distantFuture, createdAt: Date.now, systemTags: []),
+    LocationSnapshot(lat: 0.000000, lon: 0.00000, timestamp: Date.distantPast, createdAt: Date.now, systemTags: [])
 ]

@@ -8,36 +8,60 @@
 import Foundation
 import SwiftData
 
-@Model
-class LocationSnapshot: Codable {
-    // required to conform to Codable
-    enum codingKeys: CodingKey {
-        case lat, lon, timestamp
+typealias LocationSnapshot = LocationSnapshotSchemaV2.LocationSnapshot
+
+/*
+ 
+ README!!
+ 
+ schemas are technically versioned, but only for historical reference (so far). complex migrations are not set up. to pick back up and finish real versions you'll have to move every model into a versioned schema (yikes) (i'm not doing that at 12.14am).
+ 
+ */
+
+enum LocationSnapshotSchemaV2: VersionedSchema {
+    static var versionIdentifier = Schema.Version(2, 0, 0)
+    
+    static var models: [any PersistentModel.Type] {
+        [ LocationSnapshot.self ]
     }
     
-    var lat: Double
-    var lon: Double
-    var timestamp: Date
-    
-    init(lat: Double, lon: Double, timestamp: Date) {
-        self.lat = lat
-        self.lon = lon
-        self.timestamp = timestamp
-    }
-    
-    // required to conform to Codable
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: codingKeys.self)
-        self.lat = try container.decode(Double.self, forKey: codingKeys.lat)
-        self.lon = try container.decode(Double.self, forKey: codingKeys.lon)
-        self.timestamp = try container.decode(Date.self, forKey: codingKeys.timestamp)
-    }
-    
-    // required to conform to Codable
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: codingKeys.self)
-        try container.encode(lat, forKey: .lat)
-        try container.encode(lon, forKey: .lon)
-        try container.encode(timestamp, forKey: .timestamp)
+    @Model
+    class LocationSnapshot {
+        var lat: Double
+        var lon: Double
+        var timestamp: Date
+        var createdAt: Date = Date.now
+        var systemTags: [ String ] = []
+        
+        init(lat: Double, lon: Double, timestamp: Date, createdAt: Date?, systemTags: [String]) {
+            self.lat = lat
+            self.lon = lon
+            self.timestamp = timestamp
+            self.createdAt = createdAt ?? Date.now
+            self.systemTags = systemTags
+        }
     }
 }
+
+enum LocationSnapshotSchemaV1: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 0)
+    
+    static var models: [any PersistentModel.Type] {
+        [ LocationSnapshot.self ]
+    }
+    
+    @Model
+    class LocationSnapshot {
+        var lat: Double
+        var lon: Double
+        var timestamp: Date
+        
+        init(lat: Double, lon: Double, timestamp: Date) {
+            self.lat = lat
+            self.lon = lon
+            self.timestamp = timestamp
+        }
+    }
+}
+
+

@@ -18,11 +18,7 @@ struct PlaceDTO: Codable, Identifiable {
 
 @Model
 class Place: Identifiable {
-    // required to conform to Codable
-    enum CodingKeys: CodingKey {
-        case id, name, address, lat, lon
-    }
-    
+
     @Attribute(.unique) var id: UUID = UUID()
     var name: String
     var address: String

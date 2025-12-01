@@ -6,10 +6,19 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct LocationVisitsView: View {
+    @Query var visits: [LocationVisit]
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        List(visits) { visit in
+            VStack {
+                Text("\(visit.arrivalDate.formatted()) - \(visit.arrivalDate.formatted())")
+                    .font(.headline)
+                Text("\(visit.lat), \(visit.lon)")
+            }
+        }
     }
 }
 

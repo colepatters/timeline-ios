@@ -11,13 +11,17 @@ import CoreLocation
 
 @main
 struct timelineApp: App {
-    let db: Database
-    @State var locationService = LocationService()
+    private let container: ModelContainer
+    @StateObject private var locationManager: LocationManager
+    @State private var errorAlertQueue = ErrorAlertQueue()
     
     init() {
         do {
-            let database = try Database()
-            db = database
+            let container = try ModelContainer(
+                for: LocationSnapshot.self, Place.self, Visit.self,
+            )
+            self.container = container
+            _locationManager = StateObject(wrappedValue: LocationManager(modelContext: container.mainContext))
         } catch {
             fatalError()
         }
@@ -27,7 +31,8 @@ struct timelineApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(self.db.container)
-        .environment(locationService)
+        .modelContainer(self.container)
+        .environment(locationManager)
+        .environment(errorAlertQueue)
     }
 }

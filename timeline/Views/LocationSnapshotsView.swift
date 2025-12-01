@@ -6,13 +6,24 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct LocationSnapshotsView: View {
+    @Query(sort: \LocationSnapshot.timestamp, order: .reverse) var snapshots: [LocationSnapshot]
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        List(snapshots) { snapshot in
+            VStack(alignment: .leading) {
+                Text(snapshot.timestamp.formatted())
+                    .bold()
+                    .font(.headline)
+                Text("\(snapshot.lat), \(snapshot.lon)")
+            }
+        }
     }
 }
 
 #Preview {
     LocationSnapshotsView()
+        .modelContainer(try! ModelContainer.sample())
 }

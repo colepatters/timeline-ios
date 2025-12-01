@@ -76,7 +76,6 @@ struct DataExportsView: View {
     }
     
     var body: some View {
-        NavigationStack {
             List {
                 Section("Export Visits") {
                     Button {
@@ -104,10 +103,9 @@ struct DataExportsView: View {
                 }
             }
             .navigationTitle("Data Exports")
-        }
-        .alert(
-            Text("Error"),
-            isPresented: $showErrorAlert
+            .alert(
+                Text("Error"),
+                isPresented: $showErrorAlert
         ) {
             Button("Okie dokie") { showErrorAlert = false }
         } message: {

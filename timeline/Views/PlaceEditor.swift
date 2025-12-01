@@ -20,6 +20,7 @@ struct PlaceEditor: View {
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(LocationManager.self) var locationManager: LocationManager
     
     var body: some View {
         NavigationStack {
@@ -41,9 +42,8 @@ struct PlaceEditor: View {
                             .navigationBarBackButtonHidden(false)
                     }
                     NavigationLink("Choose from places nearby") {
-                        Text("this doesn't do anything yet")
+                        NearbyPlacePicker(locationManager: locationManager)
                     }
-                    .disabled(true)
                 }
             }
             .toolbar {
