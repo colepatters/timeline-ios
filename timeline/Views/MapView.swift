@@ -18,7 +18,7 @@ struct MapView: View {
     @Environment(LocationManager.self) var locationManager: LocationManager
     
     var body: some View {
-        Map {
+        Map(initialPosition: MapCameraPosition.userLocation(fallback: .automatic)) {
             ForEach(places) { place in
                 Marker(place.name, coordinate: CLLocationCoordinate2DMake(place.lat, place.lon))
             }

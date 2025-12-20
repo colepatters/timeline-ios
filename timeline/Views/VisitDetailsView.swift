@@ -9,40 +9,72 @@ import SwiftUI
 import SwiftData
 
 struct VisitDetailsView: View {
-    let visit: Visit
+    
+    private var visit: Visit?
+    
+    private var visitId: UUID
+    @Query var uuidVisit: [ Visit ]
+
+    init(visit: Visit) {
+        self.visitId = visit.id
+        self.visit = visit
+    }
+    
+    init(id: UUID) {
+        self.visitId = id
+        _uuidVisit = Query(
+            filter: #Predicate<Visit> { visit in
+                visit.id == id
+            },
+            sort: \.timestamp,
+            order: .reverse
+        )
+    }
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading) {
-            }
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Menu {
+            let activeVisit = visit ?? uuidVisit.first
+            
+            if (activeVisit == nil) {
+                VStack(alignment: .leading) {
+                    Text("Could not find a visit with this UUID.").fontWeight(.bold)
+                    Text(visitId.uuidString).textSelection(.enabled)
+                }
+                .navigationTitle("Visit not found")
+                .navigationSubtitle("Unknown datetime")
+            } else {
+                VStack(alignment: .leading) {
+                }
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Menu {
+                            NavigationLink {
+                                PlaceDetailsView(place: activeVisit!.place)
+                            } label: {
+                                Label("Go to place", systemImage: "mappin.and.ellipse")
+                            }
+                            Button {
+                                
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            .disabled(true)
+                        } label: {
+                            Image(systemName: "ellipsis")
+                        }
+                    }
+                    ToolbarItem(placement: .automatic) {
                         NavigationLink {
-                            PlaceDetailsView(place: visit.place)
+                            VisitEditor(visit: visit)
                         } label: {
-                            Label("Go to place", systemImage: "mappin.and.ellipse")
+                            Image(systemName: "pencil")
                         }
-                        Button {
-                            
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                        .disabled(true)
-                    } label: {
-                        Image(systemName: "ellipsis")
                     }
                 }
-                ToolbarItem(placement: .automatic) {
-                    NavigationLink {
-                        VisitEditor(visit: visit)
-                    } label: {
-                        Image(systemName: "pencil")
-                    }
-                }
+                .navigationTitle(activeVisit!.place.name)
+                .navigationSubtitle(activeVisit!.timestamp.formatted())
             }
-            .navigationTitle(visit.place.name)
-            .navigationSubtitle(visit.timestamp.formatted())
+            
         }
 
         

@@ -14,7 +14,7 @@ struct LocationVisitsView: View {
     var body: some View {
         List(visits) { visit in
             VStack {
-                Text("\(visit.arrivalDate.formatted()) - \(visit.arrivalDate.formatted())")
+                Text("\(visit.arrivalDate.formatted()) - \(visit.departureDate.formatted())")
                     .font(.headline)
                 Text("\(visit.lat), \(visit.lon)")
             }

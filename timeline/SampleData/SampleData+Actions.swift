@@ -18,6 +18,8 @@ func insertSampleData(modelContext: ModelContext) {
     for entry in sampleVisits {
         modelContext.insert(entry)
     }
+    modelContext.insert(Event(name: "Move"))
+    modelContext.insert(Event(name: "Breakup"))
 }
 
 func reloadSampleData(modelContext: ModelContext) {
