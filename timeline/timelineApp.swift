@@ -18,8 +18,7 @@ struct timelineApp: App {
     init() {
         do {
             let container = try ModelContainer(
-                for: AppSchema,
-                migrationPlan: 
+                for: globalDataSchema
             )
             self.container = container
             _locationManager = StateObject(wrappedValue: LocationManager(modelContext: container.mainContext))

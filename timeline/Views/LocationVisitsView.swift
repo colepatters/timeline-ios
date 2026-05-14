@@ -9,13 +9,13 @@ import SwiftUI
 import SwiftData
 
 struct LocationVisitsView: View {
-    @Query var visits: [LocationVisit]
+    @Query(sort: \LocationVisit.arrivalDate, order: .reverse) var visits: [LocationVisit]
     
     var body: some View {
         List(visits) { visit in
-            VStack {
-                Text("\(visit.arrivalDate.formatted()) - \(visit.departureDate.formatted())")
-                    .font(.headline)
+            VStack(alignment: .leading) {
+                Text(visit.arrivalDate.formatted(date: .complete, time: .omitted)).font(.headline)
+                Text("\(visit.arrivalDate.formatted(date: .omitted, time: .complete)) - \(visit.departureDate.formatted(date: .omitted, time: .complete))")
                 Text("\(visit.lat), \(visit.lon)")
             }
         }

@@ -2,25 +2,21 @@
 //  schema.swift
 //  timeline
 //
-//  Created by Cole Patterson on 12/9/25.
+//  Created by Cole Patterson on 12/19/25.
 //
 
-import Foundation
 import SwiftData
+import Foundation
 
-//enum AppSchemaV2: VersionedSchema {
-//    static var versionIdentifier = Schema.Version(2, 0, 0)
-//
-//    static var models: [any PersistentModel.Type] = [
-//        Event.self,
-//        EventCategory.self,
-//        EventType.self,
-//        LocationSnapshot.self,
-//        LocationVisit.self,
-//        Place.self,
-//        Visit.self,
-//    ]
-//}
+let globalDataSchema = Schema([
+    Event.self,
+    EventCategory.self,
+    EventType.self,
+    LocationSnapshot.self,
+    LocationVisit.self,
+    Place.self,
+    Visit.self
+])
 
 enum AppSchemaV1: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
@@ -157,6 +153,29 @@ enum AppSchemaV1: VersionedSchema {
             return result
         }
     }
+    
+    @Model
+    class PlaceCategory: Identifiable {
+        @Attribute(.unique) var id: UUID = UUID()
+        var name: String
+        
+        init(id: UUID?, name: String) {
+            self.id = id ?? UUID()
+            self.name = name
+        }
+        
+        static func fromDTO(_ dto: PlaceCategoryDTO, in context: ModelContext) throws -> PlaceCategory {
+            guard let uuid = UUID(uuidString: dto.id) else {
+                throw PlaceCategoryFromDTOError.invalidUUID(uuidString: dto.id)
+            }
+            
+            return PlaceCategory(id: uuid, name: dto.name)
+        }
+        
+        func toDTO() -> PlaceCategoryDTO {
+            return PlaceCategoryDTO(id: self.id.uuidString, name: self.name)
+        }
+    }
 
     @Model
     class Visit: Identifiable {
@@ -209,10 +228,10 @@ enum AppSchemaV1: VersionedSchema {
 
 typealias AppSchema = AppSchemaV1
 
-typealias Event = AppSchemaV1.Event
-typealias EventCategory = AppSchemaV1.EventCategory
-typealias EventType = AppSchemaV1.EventType
-typealias LocationSnapshot = AppSchemaV1.LocationSnapshot
-typealias LocationVisit = AppSchemaV1.LocationVisit
-typealias Place = AppSchemaV1.Place
-typealias Visit = AppSchemaV1.Visit
+//typealias Event = AppSchemaV1.Event
+//typealias EventCategory = AppSchemaV1.EventCategory
+//typealias EventType = AppSchemaV1.EventType
+//typealias LocationSnapshot = AppSchemaV1.LocationSnapshot
+//typealias LocationVisit = AppSchemaV1.LocationVisit
+//typealias Place = AppSchemaV1.Place
+//typealias Visit = AppSchemaV1.Visit

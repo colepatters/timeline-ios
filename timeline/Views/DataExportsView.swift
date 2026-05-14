@@ -13,6 +13,7 @@ struct DataExportsView: View {
     @Query var visits: [Visit]
     @Query var places: [Place]
     @Query var locationSnapshots: [LocationSnapshot]
+    @Query var clVisits: [ LocationVisit ]
     
     @State private var showFileExporter: Bool = false
     @State private var fileName: String = "data"
@@ -69,6 +70,44 @@ struct DataExportsView: View {
         showFileExporter = true
     }
     
+    private func handleExportLocationSnapshots() {
+        if (locationSnapshots.isEmpty) {
+            errorAlertText = "There are no snapshots to export!"
+            showErrorAlert = true
+            return
+        }
+        
+        let dtos = locationSnapshots.map { $0.toDTO() }
+        
+        guard let data = try? getJSONEncoder().encode(dtos) else {
+            handleError(message: "JSON encoder returned nil")
+            return
+        }
+        
+        fileName = "locationSnapshots"
+        fileContent = String(data: data, encoding: .utf8)!
+        showFileExporter = true
+    }
+    
+    private func handleExportCLVisits() {
+        if (clVisits.isEmpty) {
+            errorAlertText = "There are no clVisits to export!"
+            showErrorAlert = true
+            return
+        }
+        
+        let dtos = clVisits.map { $0.toDTO() }
+        
+        guard let data = try? getJSONEncoder().encode(dtos) else {
+            handleError(message: "JSON encoder returned nil")
+            return
+        }
+        
+        fileName = "clVisits"
+        fileContent = String(data: data, encoding: .utf8)!
+        showFileExporter = true
+    }
+    
     private func handleFileExportCompletion(_:Result<URL, any Error>) {
         print("file export completed")
         showFileExporter = false
@@ -95,11 +134,18 @@ struct DataExportsView: View {
                 
                 Section("Export Location Snapshots") {
                     Button {
-                        
+                        handleExportLocationSnapshots()
                     } label: {
                         Text("Export Location Snapshots")
                     }
-                    .disabled(true)
+                }
+                
+                Section("Export CLVisits") {
+                    Button {
+                        handleExportCLVisits()
+                    } label: {
+                        Text("Export CLVisits")
+                    }
                 }
             }
             .navigationTitle("Data Exports")
