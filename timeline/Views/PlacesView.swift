@@ -39,7 +39,7 @@ struct PlacesView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     NavigationLink("+") {
-                        PlaceEditor(place: nil)
+                        PlaceEditor()
                             .navigationBarBackButtonHidden(true)
                     }
                 }

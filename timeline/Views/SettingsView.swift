@@ -64,6 +64,14 @@ struct SettingsView: View {
                 Toggle(isOn: $allowBackgroundLocation) {
                     Text("Background monitoring")
                 }
+                Button {
+                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                } label: {
+                    HStack {
+                        Image(systemName: "gear")
+                        Text("open permissions in settings")
+                    }
+                }
                 .onChange(of: allowBackgroundLocation) { oldValue, newValue in
                     handleBackgroundMonitoringToggle(newValue: newValue)
                 }

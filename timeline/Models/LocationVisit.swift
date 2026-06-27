@@ -12,7 +12,12 @@ import SwiftData
 
 @Model
 class LocationVisit: Identifiable {
-    3
+    var id: UUID
+    var lat: Double
+    var lon: Double
+    var arrivalDate: Date
+    var departureDate: Date
+    var createdAt: Date
     
     init(id: UUID?, lat: Double, lon: Double, arrivalDate: Date, departureDate: Date, createdAt: Date?) {
         self.id = id ?? UUID()

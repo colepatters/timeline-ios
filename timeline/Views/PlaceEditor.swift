@@ -10,7 +10,7 @@ import SwiftData
 import MapKit
 
 struct PlaceEditor: View {
-    var place: Place?
+    var place: Place? = nil
     
     @State private var placeName: String = ""
     @State private var placeNickname: String = ""
@@ -21,6 +21,25 @@ struct PlaceEditor: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(LocationManager.self) var locationManager: LocationManager
+    
+    init() {}
+    
+    init(place: Place) {
+        self.place = place
+    }
+    
+    init(mapItem: MKMapItem) {
+        self.placeName = mapItem.name ?? mapItem.address?.fullAddress ?? "unknown place"
+        self.placeAddress = mapItem.address?.fullAddress ?? ""
+        self.placeLat = mapItem.location.coordinate.latitude.formatted()
+        self.placeLon = mapItem.location.coordinate.longitude.formatted()
+    }
+    
+    init(mapFeature: MapFeature) {
+        _placeName = State(initialValue: mapFeature.title ?? "")
+        _placeLat = State(initialValue: String(mapFeature.coordinate.latitude))
+        _placeLon = State(initialValue: String(mapFeature.coordinate.longitude))
+    }
     
     var body: some View {
         NavigationStack {
@@ -101,5 +120,10 @@ struct PlaceEditor: View {
 }
 
 #Preview {
-    PlaceEditor(place: nil)
+    let modelContainer = try! ModelContainer.sample()
+    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
+    
+    PlaceEditor()
+        .modelContainer(modelContainer)
+        .environment(locationManager)
 }
