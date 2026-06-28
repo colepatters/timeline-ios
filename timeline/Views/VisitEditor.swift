@@ -12,10 +12,21 @@ struct VisitEditor: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
-    let visit: Visit?
+    var visit: Visit? = nil
     
     @State var visitPlace: Place? = nil
     @State private var visitTimestamp: Date = Date.now
+    
+    init() {}
+    
+    init(visit: Visit) {
+        self.visit = visit
+    }
+    
+    init(place: Place, timestamp: Date? = nil) {
+        self.visitPlace = place
+        self.visitTimestamp = timestamp ?? Date.now
+    }
     
     var body: some View {
         NavigationStack {
@@ -69,6 +80,6 @@ struct VisitEditor: View {
 }
 
 #Preview {
-    VisitEditor(visit: nil)
+    VisitEditor()
         .modelContainer(try! ModelContainer.sample())
 }

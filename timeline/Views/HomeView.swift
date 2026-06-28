@@ -13,7 +13,7 @@ struct HomeView: View {
             List {
                 Section(header: Text("Adds")) {
                     NavigationLink {
-                        VisitEditor(visit: nil)
+                        VisitEditor()
                     } label: {
                         Text("+ New Visit")
                     }

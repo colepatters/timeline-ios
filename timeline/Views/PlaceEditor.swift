@@ -18,6 +18,10 @@ struct PlaceEditor: View {
     @State private var placeLat: String = ""
     @State private var placeLon: String = ""
     
+    @State private var loadingAddress: Bool = false
+    
+    private var mapFeature: MapFeature? = nil
+    
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(LocationManager.self) var locationManager: LocationManager
@@ -36,6 +40,7 @@ struct PlaceEditor: View {
     }
     
     init(mapFeature: MapFeature) {
+        self.mapFeature = mapFeature
         _placeName = State(initialValue: mapFeature.title ?? "")
         _placeLat = State(initialValue: String(mapFeature.coordinate.latitude))
         _placeLon = State(initialValue: String(mapFeature.coordinate.longitude))
@@ -48,7 +53,18 @@ struct PlaceEditor: View {
                     TextField("Name", text: $placeName)
                     TextField("Nickname (optional)", text: $placeNickname)
                         .disabled(true)
-                    TextField("Address", text: $placeAddress)
+                    
+                    if (loadingAddress) {
+                        HStack {
+                            ProgressView()
+                            Text("loading address...")
+                        }
+                    } else {
+                        TextField("Address", text: $placeAddress)
+                            .disabled(loadingAddress)
+                    }
+                    
+                    
                     TextField("Lat", text: $placeLat)
                         .keyboardType(.decimalPad)
                     TextField("Lon", text: $placeLon)
@@ -85,6 +101,26 @@ struct PlaceEditor: View {
                 self.placeAddress = place.address
                 self.placeLat = String(place.lat)
                 self.placeLon = String(place.lon)
+            }
+            
+            if (self.mapFeature != nil) {
+                Task {
+                    loadingAddress = true
+                    
+                    if let request = MKReverseGeocodingRequest(location: CLLocation(latitude: mapFeature!.coordinate.latitude, longitude: mapFeature!.coordinate.longitude)) {
+                       do {
+                           let mapitems = try await request.mapItems
+                           if let mapitem = mapitems.first {
+                               self.placeAddress = mapitem.address?.fullAddress ?? ""
+                           }
+                       } catch let error {
+                           print("error: \(error)")
+                           loadingAddress = false
+                       }
+                   }
+                    
+                    loadingAddress = false
+                }
             }
         }
     }

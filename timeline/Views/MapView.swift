@@ -59,7 +59,7 @@ private struct MapItemSelectionDetailsSheetPlaceActions: View {
     
     var body: some View {
         NavigationLink {
-            VisitEditor(visit: nil, visitPlace: place)
+            VisitEditor(place: place)
         } label: {
             Text("log a visit")
                 .frame(maxWidth: .infinity)

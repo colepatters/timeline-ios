@@ -45,7 +45,7 @@ struct PlaceDetailsView: View {
                 }
                 Menu {
                     NavigationLink {
-                        VisitEditor(visit: nil, visitPlace: place)
+                        VisitEditor(place: place)
                     } label: {
                         Label("New visit", systemImage: "plus")
                     }

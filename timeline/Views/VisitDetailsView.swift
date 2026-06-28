@@ -10,7 +10,7 @@ import SwiftData
 
 struct VisitDetailsView: View {
     
-    private var visit: Visit?
+    private var visit: Visit
     
     private var visitId: UUID
     @Query var uuidVisit: [ Visit ]
@@ -18,17 +18,6 @@ struct VisitDetailsView: View {
     init(visit: Visit) {
         self.visitId = visit.id
         self.visit = visit
-    }
-    
-    init(id: UUID) {
-        self.visitId = id
-        _uuidVisit = Query(
-            filter: #Predicate<Visit> { visit in
-                visit.id == id
-            },
-            sort: \.timestamp,
-            order: .reverse
-        )
     }
     
     var body: some View {
