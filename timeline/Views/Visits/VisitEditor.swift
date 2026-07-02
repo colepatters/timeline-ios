@@ -24,7 +24,7 @@ struct VisitEditor: View {
     }
     
     init(place: Place, timestamp: Date? = nil) {
-        self.visitPlace = place
+        _visitPlace = State(initialValue: place)
         self.visitTimestamp = timestamp ?? Date.now
     }
     
@@ -43,12 +43,18 @@ struct VisitEditor: View {
                         }
                     }
                 }
-                DatePicker("Visit Timestamp", selection: $visitTimestamp)
+                DatePicker(selection: $visitTimestamp) {
+                    HStack {
+                        Image(systemName: "clock.fill")
+                        Text("when?")
+                    }
+                }
                 Button("Submit") {
                     handleSubmit()
                 }
                 .disabled(visitPlace == nil)
             }
+            .scrollContentBackground(.hidden)
         }
         .onAppear {
             visitTimestamp = Date.now

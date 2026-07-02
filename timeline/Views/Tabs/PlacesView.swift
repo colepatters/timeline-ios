@@ -13,7 +13,8 @@ func handleNewPlace() {}
 func filteredPlaces(places: [Place], searchText: String) -> [Place] {
     guard !searchText.isEmpty else { return places }
     return places.filter { place in
-        place.name.lowercased().contains(searchText.lowercased()) || place.name.lowercased().contains(searchText.lowercased()) ||
+        place.name.lowercased().contains(searchText.lowercased()) ||
+        place.name.lowercased().contains(searchText.lowercased()) ||
         place.address.lowercased().contains(searchText.lowercased())
     }
 }

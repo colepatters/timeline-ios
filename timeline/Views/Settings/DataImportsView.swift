@@ -12,6 +12,7 @@ import UniformTypeIdentifiers
 enum ImportType {
     case places
     case visits
+    case clvisits
 }
 
 private func handleImportPlaces(_ data: Data, in context: ModelContext) throws -> Void {
@@ -51,6 +52,29 @@ private func handleImportVisits(_ data: Data, in context: ModelContext) throws -
     }
 }
 
+private func handleImportCLVisits(_ data: Data, in context: ModelContext) throws -> Void {
+    let clvisitDTOs = try getJSONDecoder().decode([ LocationVisitDTO ].self, from: data)
+    
+    for clvisit in clvisitDTOs {
+        let parsedId = UUID(uuidString: clvisit.id)
+        
+        if (parsedId == nil) {
+            continue
+        }
+        
+        context.insert(
+            LocationVisit(
+                id: parsedId,
+                lat: clvisit.lat,
+                lon: clvisit.lon,
+                arrivalDate: clvisit.arrivalDate,
+                departureDate: clvisit.departureDate,
+                createdAt: clvisit.createdAt
+            )
+        )
+    }
+}
+
 struct DataImportsView: View {
     @State private var loading: Bool = false
     
@@ -77,6 +101,14 @@ struct DataImportsView: View {
                     showFileImporter = true
                 } label: {
                     Text("Import Visits")
+                }
+            }
+            Section("CLVisits") {
+                Button {
+                    currentImportType = .clvisits
+                    showFileImporter = true
+                } label: {
+                    Text("Import CLVisits")
                 }
             }
         }
@@ -109,6 +141,8 @@ struct DataImportsView: View {
                     try handleImportPlaces(data, in: modelContext)
                 case .visits:
                     try handleImportVisits(data, in: modelContext)
+                case .clvisits:
+                    try handleImportCLVisits(data, in: modelContext)
                 case nil:
                     print("no import type")
                 }

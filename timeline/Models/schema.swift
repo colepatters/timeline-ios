@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-let globalDataSchema = Schema([
+public let globalDataSchema = Schema([
     Event.self,
     EventCategory.self,
     EventType.self,
@@ -17,6 +17,15 @@ let globalDataSchema = Schema([
     Place.self,
     Visit.self
 ])
+
+public func ConfigureModelContainer() -> ModelContainer {
+    let modelConfiguration = ModelConfiguration(schema: globalDataSchema, isStoredInMemoryOnly: false, cloudKitDatabase: .none)
+    do {
+        return try ModelContainer(for: globalDataSchema, configurations: [modelConfiguration])
+    } catch {
+        fatalError(error.localizedDescription)
+    }
+}
 
 enum AppSchemaV1: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
@@ -30,8 +39,6 @@ enum AppSchemaV1: VersionedSchema {
         Place.self,
         Visit.self,
     ]
-    
-    
 
     @Model
     class LocationSnapshot {

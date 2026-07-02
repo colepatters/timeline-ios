@@ -21,6 +21,7 @@ struct PlaceEditor: View {
     @State private var loadingAddress: Bool = false
     
     private var mapFeature: MapFeature? = nil
+    private var logVisitOnCreation: Bool = false
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -39,8 +40,10 @@ struct PlaceEditor: View {
         self.placeLon = mapItem.location.coordinate.longitude.formatted()
     }
     
-    init(mapFeature: MapFeature) {
+    init(mapFeature: MapFeature, logVisit: Bool = false) {
         self.mapFeature = mapFeature
+        self.logVisitOnCreation = logVisit
+        
         _placeName = State(initialValue: mapFeature.title ?? "")
         _placeLat = State(initialValue: String(mapFeature.coordinate.latitude))
         _placeLon = State(initialValue: String(mapFeature.coordinate.longitude))
@@ -81,6 +84,7 @@ struct PlaceEditor: View {
                     }
                 }
             }
+            .scrollContentBackground(.automatic)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -146,9 +150,19 @@ struct PlaceEditor: View {
             place.address = placeAddress
             place.lat = Double(placeLat)!
             place.lon = Double(placeLon)!
+            
+            if (logVisitOnCreation == true) {
+                let newVisit = Visit(id: UUID(), place: place, timestamp: Date.now)
+                modelContext.insert(newVisit)
+            }
         } else {
             let newPlace = Place(id: nil, name: placeName, address: placeAddress, lat: Double(placeLat)!, lon: Double(placeLon)!)
             modelContext.insert(newPlace)
+            
+            if (logVisitOnCreation == true) {
+                let newVisit = Visit(id: UUID(), place: newPlace, timestamp: Date.now)
+                modelContext.insert(newVisit)
+            }
         }
         
         dismiss()

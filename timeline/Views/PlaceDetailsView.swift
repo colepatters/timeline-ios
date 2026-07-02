@@ -11,6 +11,9 @@ import SwiftData
 struct PlaceDetailsView: View {
     let place: Place
     
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    
     @Query private var visits: [Visit]
     
     init(place: Place) {
@@ -49,11 +52,13 @@ struct PlaceDetailsView: View {
                     } label: {
                         Label("New visit", systemImage: "plus")
                     }
-                    Button {}
+                    Button {
+                        modelContext.delete(place)
+                        dismiss()
+                    }
                     label: {
                         Label("Delete", systemImage: "trash")
                     }
-                    .disabled(true)
                 } label: {
                     Image(systemName: "ellipsis")
                 }

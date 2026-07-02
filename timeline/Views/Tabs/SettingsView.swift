@@ -113,8 +113,6 @@ struct SettingsView: View {
                 locationServiceActive = false
             }
             
-            
-            
             pendingLocationServiceChange = false
         }
         
@@ -125,7 +123,9 @@ struct SettingsView: View {
     let modelContainer = try! ModelContainer.sample()
     let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
     
-    SettingsView()
-        .modelContainer(modelContainer)
-        .environment(locationManager)
+    NavigationStack {
+        SettingsView()
+            .modelContainer(modelContainer)
+            .environment(locationManager)
+    }
 }

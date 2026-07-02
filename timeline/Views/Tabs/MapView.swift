@@ -57,16 +57,66 @@ private struct MapItemSelectionDetailsSheetPlaceActions: View {
     
     var place: Place
     
+    @Query private var visits: [ Visit ]
+    
+    init(place: Place) {
+        self.place = place
+        
+        let id = place.persistentModelID
+        var descriptor = FetchDescriptor<Visit>(
+            predicate: #Predicate { id == $0.place.persistentModelID },
+            sortBy: [
+                .init(\.timestamp)
+            ]
+        )
+        descriptor.fetchLimit = 5
+        
+        _visits = Query(descriptor)
+    }
+    
+    
     var body: some View {
-        NavigationLink {
-            VisitEditor(place: place)
-        } label: {
-            Text("log a visit")
-                .frame(maxWidth: .infinity)
+        
+        VStack(alignment: .leading) {
+            if (visits.first != nil) {
+                Text("last visit")
+                    .fontWeight(.bold)
+                Text(visits.first!.timestamp.formatted())
+            }
             
+            if (visits.isEmpty != true) {        
+                Text("visits")
+                    .fontWeight(.bold)
+                List(visits) { visit in
+                    NavigationLink {
+                        VisitDetailsView(visit: visit)
+                    } label: {
+                        Text(visit.timestamp.formatted())
+                    }
+                }
+                .listStyle(.plain)
+                .frame(maxWidth: .infinity)
+            }
+            
+            
+            NavigationLink {
+                VisitEditor(place: place)
+            } label: {
+                Text("log a visit")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+            
+            NavigationLink {
+                PlaceDetailsView(place: place)
+            } label: {
+                Text("details")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
         }
-        .buttonStyle(.glassProminent)
-        .controlSize(.large)
     }
 }
 
@@ -79,6 +129,16 @@ private struct MapItemSelectionDetailsSheetFeatureActions: View {
             PlaceEditor(mapFeature: feature)
         } label: {
             Text("add to places")
+                .frame(maxWidth: .infinity)
+            
+        }
+        .buttonStyle(.glassProminent)
+        .controlSize(.large)
+        
+        NavigationLink {
+            PlaceEditor(mapFeature: feature, logVisit: true)
+        } label: {
+            Text("add to places and log visit")
                 .frame(maxWidth: .infinity)
             
         }
@@ -143,8 +203,8 @@ struct MapView: View {
                     selection = nil
                     selectedPlace = nil
                 }
+                .padding([.top, .leading, .trailing], 20)
             }
-            .padding([.top, .leading, .trailing], 20)
             .presentationDetents([ .height(400) ])
         }
     }
