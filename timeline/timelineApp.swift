@@ -31,7 +31,7 @@ struct timelineApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(self.container)
+        .modelContainer(container)
         .environment(locationManager)
         .environment(errorAlertQueue)
     }

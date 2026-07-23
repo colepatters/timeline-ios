@@ -80,7 +80,7 @@ struct PlaceEditor: View {
                             .navigationBarBackButtonHidden(false)
                     }
                     NavigationLink("Choose from places nearby") {
-                        NearbyPlacePicker(locationManager: locationManager)
+                        NearbyPlacePicker(locationManager: locationManager, handleSelect: handleMapItemSelection)
                     }
                 }
             }

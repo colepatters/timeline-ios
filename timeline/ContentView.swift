@@ -48,6 +48,11 @@ struct ContentView: View {
 }
 
 #Preview {
+    let modelContainer = try! ModelContainer.sample()
+    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
+    
+    
     ContentView()
-        .modelContainer(try! ModelContainer.sample())
+        .modelContainer(modelContainer)
+        .environment(locationManager)
 }

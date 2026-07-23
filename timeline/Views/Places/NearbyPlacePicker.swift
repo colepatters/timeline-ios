@@ -10,37 +10,56 @@ import SwiftData
 import MapKit
 
 struct NearbyPlacePicker: View {
+    @Environment(\.dismiss) private var dismiss
     
     var locationManager: LocationManager
-    @State private var searchSource: NearbyPlacesSearchSource? = nil
-    
     @State private var presentErrorModal: Bool = false
     @State private var errorAlertMessage: String = "Default message"
     
+    @State private var searching: Bool = false
+    @State private var mapItems: [ MKMapItem ] = []
+    
+    var handleSelect: ((_ mapItem: MKMapItem) -> Void)?
+    
     var body: some View {
         NavigationStack {
-            if searchSource == nil {
+            if (searching) {
                 VStack {
-                    Text("Waiting for searchSource")
+                    Text("Grabbing nearby places")
                     ProgressView()
                 }
-                
             }
             
-            if searchSource != nil {
-                if searchSource!.isSearching {
-                    VStack {
-                        Text("Grabbing nearby places")
-                        ProgressView()
+            List(mapItems, id: \.hash) { result in
+                Button {
+                    if (handleSelect != nil) {
+                        handleSelect!(result)
+                        dismiss()
+                    }
+                } label: {
+                    VStack(alignment: .leading) {
+                        Text(result.name ?? "no name")
+                        Text(result.address?.fullAddress ?? "")
+                            .font(.subheadline)
                     }
                 }
             }
+            
         }
         .onAppear {
-            searchSource = NearbyPlacesSearchSource(manager: locationManager.manager)
             Task {
                 do {
-                    try await searchSource!.search()
+                    searching = true
+                    
+                    let request = MKLocalPointsOfInterestRequest(
+                        center: locationManager.manager.location!.coordinate,
+                        radius: 100
+                    )
+                    let result = try await MKLocalSearch(request: request).start()
+                    
+                    mapItems = result.mapItems
+                    
+                    searching = false
                 } catch {
                     presentErrorModal = true
                     errorAlertMessage = String(describing: error)
