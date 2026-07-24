@@ -21,6 +21,9 @@ struct timelineApp: App {
                 for: globalDataSchema
             )
             self.container = container
+            
+//            container.mainContext.insert(LogEntry(body: "model container created successfully", level: .info))
+            
             _locationManager = StateObject(wrappedValue: LocationManager(modelContext: container.mainContext))
         } catch {
             fatalError()

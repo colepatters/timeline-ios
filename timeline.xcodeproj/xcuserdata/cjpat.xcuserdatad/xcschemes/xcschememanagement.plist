@@ -12,16 +12,21 @@
 		<key>ShareExtensionV1.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>1</integer>
 		</dict>
 		<key>timeline.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>0</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>2E4E7E742E74C94D00B638E0</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>2ED9FBB72FF1E89500C7EA64</key>
 		<dict>
 			<key>primary</key>

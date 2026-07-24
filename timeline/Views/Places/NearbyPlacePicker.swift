@@ -61,6 +61,7 @@ struct NearbyPlacePicker: View {
                     
                     searching = false
                 } catch {
+                    searching = false
                     presentErrorModal = true
                     errorAlertMessage = String(describing: error)
                     print(error)

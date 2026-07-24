@@ -51,8 +51,6 @@ class Place: Identifiable {
                 predicate: #Predicate { $0.id == id }
             ))
 
-        print(result)
-
         return result
     }
 }

@@ -100,6 +100,12 @@ struct SettingsView: View {
                 } label: {
                     Text("Data Exports")
                 }
+                
+                NavigationLink {
+                    LogEntryView()
+                } label: {
+                    Text("Logs")
+                }
             }
         }
         .onAppear {

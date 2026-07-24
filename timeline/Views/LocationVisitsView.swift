@@ -10,9 +10,13 @@ import SwiftData
 import MapKit
 
 struct LocationVisitsView: View {
+    @Environment(ErrorAlertQueue.self) private var errorAlertQueue
+    
     @Query(sort: \LocationVisit.arrivalDate, order: .reverse) var visits: [LocationVisit]
     
     @State private var selectedVisit: LocationVisit? = nil
+    @State private var nearbyMKPlacesLoading: Bool = false
+    @State private var nearbyMKPlaces: [ MKMapItem ] = []
     
     var body: some View {
         List(visits) { visit in
@@ -76,10 +80,19 @@ struct LocationVisitsView: View {
                         .font(.title3)
                         .fontWeight(.bold)
                     
-                    VStack {
+                    if (nearbyMKPlacesLoading == true) {
                         ProgressView()
+                    } else {
+                        List(nearbyMKPlaces, id: \.hash) { place in
+                            VStack(alignment: .leading) {
+                                Text(place.name ?? "no name")
+                                Text(place.address?.fullAddress ?? "no address")
+                                    .font(.subheadline)
+                            }
+                        }
+                        .listStyle(.plain)
+                        .frame(maxHeight: .infinity)
                     }
-                    
                 }
                 
                 
@@ -87,15 +100,42 @@ struct LocationVisitsView: View {
             }
             .padding(20)
         }
+        .onChange(of: selectedVisit) { oldValue, newValue in
+            if (newValue == nil) {
+                nearbyMKPlaces = []
+            } else {
+                Task {
+                    do {
+                        nearbyMKPlacesLoading = true
+                        
+                        let request = MKLocalPointsOfInterestRequest(
+                            center: CLLocationCoordinate2D(latitude: selectedVisit!.lat, longitude: selectedVisit!.lon),
+                            radius: 50
+                        )
+                        let result = try await MKLocalSearch(request: request).start()
+                        
+                        nearbyMKPlaces = result.mapItems
+                        
+                        nearbyMKPlacesLoading = false
+                    } catch {
+                        nearbyMKPlacesLoading = false
+                        errorAlertQueue.append(ErrorAlert(title: "error while loading nearby places", message: error.localizedDescription))
+                        print(error)
+                    }
+                }
+            }
+        }
     }
 }
 
 #Preview {
     let modelContainer = try! ModelContainer.sample()
+    let errorQueue = ErrorAlertQueue()
     
     NavigationStack {
         LocationVisitsView()
             .modelContainer(modelContainer)
+            .environment(errorQueue)
     }
     
 }

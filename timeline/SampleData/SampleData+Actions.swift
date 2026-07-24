@@ -24,7 +24,7 @@ func insertSampleData(modelContext: ModelContext) {
     
     let dateFormatter = ISO8601DateFormatter()
     
-//    visits
+//    location / CLvisits
     modelContext.insert(
         LocationVisit(
             id: UUID(uuidString: "7CA9F7A5-8344-43A0-9D7B-44B98D0E09F1"), lat: 44.72751214667472,
@@ -164,12 +164,15 @@ func insertSampleData(modelContext: ModelContext) {
             departureDate: dateFormatter.date(from: "4001-01-01T00:00:00Z")!,
             createdAt: dateFormatter.date(from: "2026-07-22T06:13:05Z")!))
 
-
+    
+    modelContext.insert(
+        LogEntry(body: "sample data inserted into model context successfully")
+    )
 }
 
 func reloadSampleData(modelContext: ModelContext) {
     do {
-        try modelContext.delete(model: LocationSnapshot.self)
+        modelContext.insert(LogEntry(body: "reloading sample data"))
         insertSampleData(modelContext: modelContext)
     } catch {
         fatalError(error.localizedDescription)
