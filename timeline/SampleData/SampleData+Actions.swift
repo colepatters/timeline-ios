@@ -168,6 +168,25 @@ func insertSampleData(modelContext: ModelContext) {
     modelContext.insert(
         LogEntry(body: "sample data inserted into model context successfully")
     )
+    
+    modelContext.insert(
+        QuickVisit(
+            arrival: Date.now - TimeInterval(integerLiteral: 10),
+            departure: Date.now,
+            source: .app,
+            lat: 37.33473020,
+            lon: -122.00891890
+        )
+    )
+    
+    modelContext.insert(
+        QuickVisit(
+            arrival: Date.now - TimeInterval(integerLiteral: 30),
+            source: .app,
+            lat: 37.33473020,
+            lon: -122.00891890
+        )
+    )
 }
 
 func reloadSampleData(modelContext: ModelContext) {

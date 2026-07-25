@@ -36,6 +36,8 @@ class LocationManager: Observable, ObservableObject {
 class LocationServiceDelegate: NSObject, CLLocationManagerDelegate {
     private let modelContext: ModelContext
     
+    var locationUpdateCallbackQueue: [ (_ location: CLLocation) -> Void ] = []
+    
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
@@ -125,6 +127,14 @@ class LocationServiceDelegate: NSObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         print("locations updated")
         modelContext.insert(LogEntry(body: "[LocationManager] locations updated"))
+        
+        if (!self.locationUpdateCallbackQueue.isEmpty && !locations.isEmpty) {
+            for callback in self.locationUpdateCallbackQueue {
+                callback(locations.first!)
+            }
+        }
+        
+        self.locationUpdateCallbackQueue = []
         
         for location in locations {
             let snapshot = LocationSnapshot(lat: location.coordinate.latitude, lon: location.coordinate.longitude, timestamp: location.timestamp, createdAt: Date.now, systemTags: [])
