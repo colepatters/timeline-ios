@@ -69,10 +69,13 @@ class LocationServiceDelegate: NSObject, CLLocationManagerDelegate {
             
             if (filtered.first != nil) {
                 modelContext.insert(
-                    LogEntry(body: "[LocationManager] found a CLVisit that matches the arrival date and has not accurate end date")
+                    LogEntry(
+                        title: "[LocationManager] found a CLVisit that matches the arrival date and has not accurate end date",
+                        body: "new visit arrival: \(visit.arrivalDate.formatted()), new visit departure: \(visit.departureDate.formatted()), match visit arrival: \(filtered.first!.arrivalDate.formatted()), match visit departure: \(filtered.first!.departureDate.formatted())"
+                    )
                 )
                 
-                existingVisit = results.first
+                existingVisit = filtered.first
             }
         } catch {
             print(error)
@@ -102,7 +105,18 @@ class LocationServiceDelegate: NSObject, CLLocationManagerDelegate {
             )
         } else {
             existingVisit!.departureDate = visit.departureDate
-            try! modelContext.save()
+            
+            do {
+                try modelContext.save()
+            } catch {
+                modelContext.insert(
+                    LogEntry(
+                        title: "[LocationManager] failed to save model context after updating matched visit's departureDate",
+                        body: error.localizedDescription,
+                        level: .error
+                    )
+                )
+            }
         }
         
         modelContext.insert(LogEntry(body: "[LocationManager] CLVisit saved into model context"))

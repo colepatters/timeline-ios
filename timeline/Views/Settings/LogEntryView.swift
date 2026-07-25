@@ -23,12 +23,12 @@ struct LogEntryView: View {
                 
                 HStack {
                     switch logEntry.level {
-                    case .info: Text("ℹ")
-                    case .warn: Text("⚠")
-                    case .error: Text("x")
-                    case .fatal: Text("⏹")
+                    case .info: Text("ℹ").font(.footnote)
+                    case .warn: Text("⚠").font(.footnote)
+                    case .error: Text("x").font(.footnote)
+                    case .fatal: Text("⏹").font(.footnote)
                     }
-                    Text("•")
+                    Text("•").font(.footnote)
                     Text(logEntry.createdAt.formatted())
                         .font(.footnote)
                 }

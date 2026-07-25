@@ -36,7 +36,7 @@ struct SettingsView: View {
             locationManager.manager.startMonitoringVisits()
         } else {
             // turn off background monitoring
-            locationManager.manager.stopMonitoringVisits()
+            locationManager.manager.stopUpdatingLocation()
             locationManager.manager.stopMonitoringVisits()
         }
         

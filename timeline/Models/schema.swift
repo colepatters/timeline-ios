@@ -16,7 +16,8 @@ public let globalDataSchema = Schema([
     LocationVisit.self,
     Place.self,
     Visit.self,
-    LogEntry.self
+    LogEntry.self,
+    QuickVisit.self
 ])
 
 public func ConfigureModelContainer() -> ModelContainer {

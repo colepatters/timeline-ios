@@ -110,7 +110,7 @@ struct LocationVisitsView: View {
                         
                         let request = MKLocalPointsOfInterestRequest(
                             center: CLLocationCoordinate2D(latitude: selectedVisit!.lat, longitude: selectedVisit!.lon),
-                            radius: 50
+                            radius: 100
                         )
                         let result = try await MKLocalSearch(request: request).start()
                         
