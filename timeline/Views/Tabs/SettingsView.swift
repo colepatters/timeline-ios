@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 import MapKit
+import UniformTypeIdentifiers
+
 
 struct SettingsView: View {
     @State private var locationServiceActive = false
@@ -16,7 +18,12 @@ struct SettingsView: View {
     
     @State private var pendingLocationServiceChange = false
     
+    @State private var showFileExporter = false
+    @State private var fileExportDocument = JsonFile(initialText: "default file")
+    
     @Environment(LocationManager.self) var locationManager: LocationManager
+    @Environment(\.modelContext) private var modelContext
+    @Environment(ErrorAlertQueue.self) private var errorAlertQueue
     
     private func handleLocationServiceToggle(newValue: Bool) -> Void {
         pendingLocationServiceChange = true
@@ -40,6 +47,13 @@ struct SettingsView: View {
             locationManager.manager.stopMonitoringVisits()
         }
         
+    }
+    
+    
+    private func handleFileExportResult(_ result: Result<URL, any Error>) {
+        if (type(of: result) == Error.self) {
+            errorAlertQueue.append(ErrorAlert(title: "could not save file", message: (result as! any Error).localizedDescription))
+        }
     }
     
     var body: some View {
@@ -101,6 +115,20 @@ struct SettingsView: View {
                     Text("Data Exports")
                 }
                 
+                Button {
+                    do {
+                        fileExportDocument = try allDataToJSON(modelContext: modelContext)
+                        showFileExporter = true
+                    } catch {
+                        errorAlertQueue.append(ErrorAlert(title: "failed to encode data to json", message: error.localizedDescription))
+                    }
+                } label: {
+                    HStack {
+                        Image(systemName: "iphone.and.arrow.right.outward")
+                        Text("Export all data")
+                    }
+                }
+                
                 NavigationLink {
                     LogEntryView()
                 } label: {
@@ -121,6 +149,13 @@ struct SettingsView: View {
             
             pendingLocationServiceChange = false
         }
+        .fileExporter(
+            isPresented: $showFileExporter,
+            document: fileExportDocument,
+            contentType: UTType.json,
+            defaultFilename: "\(Date.now.formatted(date: .abbreviated, time: .omitted)).json",
+            onCompletion: handleFileExportResult
+        )
         
     }
 }
@@ -128,10 +163,12 @@ struct SettingsView: View {
 #Preview {
     let modelContainer = try! ModelContainer.sample()
     let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
+    let alertQueue = ErrorAlertQueue()
     
     NavigationStack {
         SettingsView()
             .modelContainer(modelContainer)
             .environment(locationManager)
+            .environment(alertQueue)
     }
 }
