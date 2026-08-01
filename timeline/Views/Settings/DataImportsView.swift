@@ -76,14 +76,14 @@ private func handleImportCLVisits(_ data: Data, in context: ModelContext) throws
 }
 
 struct DataImportsView: View {
+    @Environment(AppContext.self) private var appContext
+    
     @State private var loading: Bool = false
     
     @State var destroyBeforeImportAll: Bool = true
     @State var showFileImporter: Bool = false
     
     @State var currentImportType: ImportType? = nil
-    
-    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         List {
@@ -138,11 +138,11 @@ struct DataImportsView: View {
                 
                 switch(currentImportType) {
                 case .places:
-                    try handleImportPlaces(data, in: modelContext)
+                    try handleImportPlaces(data, in: appContext.modelContainer.mainContext)
                 case .visits:
-                    try handleImportVisits(data, in: modelContext)
+                    try handleImportVisits(data, in: appContext.modelContainer.mainContext)
                 case .clvisits:
-                    try handleImportCLVisits(data, in: modelContext)
+                    try handleImportCLVisits(data, in: appContext.modelContainer.mainContext)
                 case nil:
                     print("no import type")
                 }
@@ -159,6 +159,6 @@ struct DataImportsView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .modifier(SampleAppContext())) {
     DataImportsView()
 }

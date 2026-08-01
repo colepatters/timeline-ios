@@ -11,31 +11,40 @@ import CoreLocation
 
 @main
 struct timelineApp: App {
-    private let container: ModelContainer
-    @StateObject private var locationManager: LocationManager
-    @State private var errorAlertQueue = ErrorAlertQueue()
+    private let appContext: AppContext?
     
     init() {
-        do {
-            let container = try ModelContainer(
-                for: globalDataSchema
-            )
-            self.container = container
-            
-//            container.mainContext.insert(LogEntry(body: "model container created successfully", level: .info))
-            
-            _locationManager = StateObject(wrappedValue: LocationManager(modelContext: container.mainContext))
-        } catch {
-            fatalError()
-        }
+        self.appContext = AppContext()
     }
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if (appContext == nil) {
+                Text("app context could not be created")
+            } else {
+                ContentView()
+                    .modelContainer(appContext!.modelContainer)
+                    .environment(appContext!)
+            }
         }
-        .modelContainer(container)
-        .environment(locationManager)
-        .environment(errorAlertQueue)
     }
+}
+
+class AppContext: Observable {
+    
+    var modelContainer: ModelContainer
+    var locationManager: LocationManager
+    var errorAlertQueue: ErrorAlertQueue
+    
+    init?() {
+        do {
+            self.modelContainer = try ModelContainer(for: globalDataSchema)
+        } catch {
+            return nil
+        }
+        
+        self.locationManager = LocationManager(modelContext: self.modelContainer.mainContext)
+        self.errorAlertQueue = ErrorAlertQueue()
+    }
+    
 }

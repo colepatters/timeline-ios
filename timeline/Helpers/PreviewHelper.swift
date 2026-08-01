@@ -8,10 +8,21 @@
 import Foundation
 import SwiftUI
 
-//struct SampleData: PreviewModifier {
-//    
-//    static func makeSharedContext() async throws -> Context {
-//        
-//    }
-//    
-//}
+struct SampleAppContext: PreviewModifier {
+    
+    static func makeSharedContext() async throws -> AppContext {
+        let appContext = AppContext()
+        
+        if (appContext == nil) {
+            fatalError("failed to create sample app context")
+        }
+        
+        return appContext!
+    }
+    
+    func body(content: Content, context: AppContext) -> some View {
+        content
+            .environment(context)
+    }
+    
+}

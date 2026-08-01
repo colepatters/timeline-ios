@@ -9,16 +9,17 @@ import SwiftUI
 import SwiftData
 
 struct PlaceDetailsView: View {
-    let place: Place
-    
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
-    
-    @Query private var visits: [Visit]
-    
+    @Environment(\.modelContext) private var modelContext // this line is necessary apparently
+
+    @Query private var visits: [ Visit ]
+
+    let place: Place
+
     init(place: Place) {
         self.place = place
         let placeId = place.id
+        
         _visits = Query(
             filter: #Predicate<Visit> { visit in
                 visit.place.id == placeId
@@ -67,8 +68,7 @@ struct PlaceDetailsView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .modifier(SampleAppContext())) {
     PlaceDetailsView(place: samplePlace)
-        .modelContainer(try! ModelContainer.sample())
 }
 

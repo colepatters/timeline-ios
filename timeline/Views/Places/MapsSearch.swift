@@ -21,6 +21,9 @@ private enum SearchError: Error {
 }
 
 struct MapsSearch: View {
+    @Environment(AppContext.self) private var appContext
+    @Environment(\.dismiss) private var dismiss
+    
     @Query private var places: [ Place ]
     
     @State private var searchQuery: String = ""
@@ -33,9 +36,6 @@ struct MapsSearch: View {
     private var suggestedCoordinateLabel: String = ""
     
     @State private var showManualCoordinateSelectionSheet: Bool = false
-    
-    @Environment(\.dismiss) private var dismiss
-    @Environment(LocationManager.self) var locationManager: LocationManager
     
     var handleMapItemSelection: ((_ mapItem: MKMapItem) -> Void)? = nil
     
@@ -63,7 +63,7 @@ struct MapsSearch: View {
             
             isSearching = true
             
-            if (searchCoordinateType == .userLocation && locationManager.manager.location == nil) {
+            if (searchCoordinateType == .userLocation && appContext.locationManager.manager.location == nil) {
                 throw SearchError.deviceLocationNotAvailable
             }
             
@@ -76,7 +76,7 @@ struct MapsSearch: View {
             case .userLocation:
                 request.region = MKCoordinateRegion(
                     MKMapRect(
-                        origin: MKMapPoint(locationManager.manager.location!.coordinate),
+                        origin: MKMapPoint(appContext.locationManager.manager.location!.coordinate),
                         size: .init(width: 500, height: 500)
                     )
                 )
@@ -114,7 +114,7 @@ struct MapsSearch: View {
                     Picker(selection: $searchCoordinateType) {
                         Text("your location")
                             .tag(SearchCoordinateType.userLocation)
-                            .selectionDisabled(locationManager.manager.location == nil)
+                            .selectionDisabled(appContext.locationManager.manager.location == nil)
                         
                         if (suggestedCoordinate != nil) {
                             Text("suggested")
@@ -195,11 +195,6 @@ struct MapsSearch: View {
 }
 
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
-    
+#Preview(traits: .modifier(SampleAppContext())) {
     MapsSearch()
-        .modelContainer(modelContainer)
-        .environment(locationManager)
 }

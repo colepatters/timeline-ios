@@ -10,7 +10,7 @@ import SwiftData
 import MapKit
 
 struct VisitEditor: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(AppContext.self) private var appContext
     @Environment(\.dismiss) private var dismiss
     
     var visit: Visit? = nil
@@ -84,7 +84,7 @@ struct VisitEditor: View {
             visit.timestamp = visitTimestamp
         } else {
             let newVisit = Visit(id: nil, place: visitPlace!, timestamp: visitTimestamp)
-            modelContext.insert(newVisit)
+            appContext.modelContainer.mainContext.insert(newVisit)
         }
         
         dismiss()
@@ -93,16 +93,13 @@ struct VisitEditor: View {
     
 }
 
-#Preview("new visit") {
+#Preview("new visit", traits: .modifier(SampleAppContext())) {
     VisitEditor()
-        .modelContainer(try! ModelContainer.sample())
 }
 
-#Preview("edit existing visit") {
-    
+#Preview("edit existing visit", traits: .modifier(SampleAppContext())) {
     let place = Place(id: nil, name: "Home", address: "16535 Tranquility Ct Se Prior Lake MN 55372", lat: 44.710309, lon: -93.434450)
     let visit = Visit(id: UUID(), place: place, timestamp: Date.now)
     
     VisitEditor(visit: visit)
-        .modelContainer(try! ModelContainer.sample())
 }

@@ -10,7 +10,7 @@ import SwiftData
 import MapKit
 
 struct LocationVisitsView: View {
-    @Environment(ErrorAlertQueue.self) private var errorAlertQueue
+    @Environment(AppContext.self) private var appContext
     
     @Query(sort: \LocationVisit.arrivalDate, order: .reverse) var visits: [LocationVisit]
     
@@ -120,7 +120,7 @@ struct LocationVisitsView: View {
                         nearbyMKPlacesLoading = false
                     } catch {
                         nearbyMKPlacesLoading = false
-                        errorAlertQueue.append(ErrorAlert(title: "error while loading nearby places", message: error.localizedDescription))
+                        appContext.errorAlertQueue.append(ErrorAlert(title: "error while loading nearby places", message: error.localizedDescription))
                         print(error)
                     }
                 }
@@ -129,14 +129,9 @@ struct LocationVisitsView: View {
     }
 }
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let errorQueue = ErrorAlertQueue()
-    
+#Preview(traits: .modifier(SampleAppContext())) {    
     NavigationStack {
         LocationVisitsView()
-            .modelContainer(modelContainer)
-            .environment(errorQueue)
     }
     
 }

@@ -10,6 +10,9 @@ import SwiftData
 import MapKit
 
 struct PlaceEditor: View {
+    @Environment(AppContext.self) private var appContext
+    @Environment(\.dismiss) private var dismiss
+    
     var place: Place? = nil
     
     @State private var placeName: String = ""
@@ -22,10 +25,6 @@ struct PlaceEditor: View {
     
     private var mapFeature: MapFeature? = nil
     private var logVisitOnCreation: Bool = false
-    
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
-    @Environment(LocationManager.self) var locationManager: LocationManager
     
     private var suggestedCoordinateLabel: String? = nil
     private var suggestedCoordinate: CLLocationCoordinate2D? = nil
@@ -169,17 +168,17 @@ struct PlaceEditor: View {
             
             if (logVisitOnCreation == true) {
                 let newVisit = Visit(id: UUID(), place: place, timestamp: Date.now)
-                modelContext.insert(newVisit)
+                appContext.modelContainer.mainContext.insert(newVisit)
             }
         } else {
             // TODO check if place already exists
             
             let newPlace = Place(id: nil, name: placeName, address: placeAddress, lat: Double(placeLat)!, lon: Double(placeLon)!)
-            modelContext.insert(newPlace)
+            appContext.modelContainer.mainContext.insert(newPlace)
             
             if (logVisitOnCreation == true) {
                 let newVisit = Visit(id: UUID(), place: newPlace, timestamp: Date.now)
-                modelContext.insert(newVisit)
+                appContext.modelContainer.mainContext.insert(newVisit)
             }
         }
         
@@ -187,11 +186,6 @@ struct PlaceEditor: View {
     }
 }
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
-    
+#Preview(traits: .modifier(SampleAppContext())) {
     PlaceEditor()
-        .modelContainer(modelContainer)
-        .environment(locationManager)
 }

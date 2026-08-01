@@ -10,9 +10,8 @@ import SwiftData
 import MapKit
 
 struct NearbyPlacePicker: View {
+    @Environment(AppContext.self) private var appContext
     @Environment(\.dismiss) private var dismiss
-    @Environment(ErrorAlertQueue.self) private var errorAlertQueue
-    @Environment(LocationManager.self) private var locationManager
     
     @State private var searching: Bool = true
     @State private var mapItems: [ MKMapItem ] = []
@@ -80,8 +79,8 @@ struct NearbyPlacePicker: View {
                 do {
                     searching = true
                     
-                    if (locationManager.manager.location == nil) {
-                        errorAlertQueue.append(
+                    if (appContext.locationManager.manager.location == nil) {
+                        appContext.errorAlertQueue.append(
                             ErrorAlert(
                                 title: "unable to fetch nearby places",
                                 message: "looks like we don't have your location, please make sure you have the location service enabled and you're allowing timeline to access your location"
@@ -90,7 +89,7 @@ struct NearbyPlacePicker: View {
                         return
                     }
                     
-                    let userPositionCoordinates = locationManager.manager.location!.coordinate
+                    let userPositionCoordinates = appContext.locationManager.manager.location!.coordinate
                     
                     cameraPosition = .camera(.init(
                         centerCoordinate: CLLocationCoordinate2D(
@@ -101,7 +100,7 @@ struct NearbyPlacePicker: View {
                     ))
                     
                     let request = MKLocalPointsOfInterestRequest(
-                        center: locationManager.manager.location!.coordinate,
+                        center: appContext.locationManager.manager.location!.coordinate,
                         radius: 100
                     )
                     let result = try await MKLocalSearch(request: request).start()
@@ -118,15 +117,6 @@ struct NearbyPlacePicker: View {
     }
 }
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
-    let alertQueue = ErrorAlertQueue()
-    
-    NavigationStack {
-        NearbyPlacePicker()
-            .modelContainer(modelContainer)
-            .environment(locationManager)
-            .environment(alertQueue)
-    }
+#Preview(traits: .modifier(SampleAppContext())) {
+    NearbyPlacePicker()
 }

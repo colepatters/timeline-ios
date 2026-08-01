@@ -13,6 +13,8 @@ import UniformTypeIdentifiers
 
 
 struct SettingsView: View {
+    @Environment(AppContext.self) private var appContext
+    
     @State private var locationServiceActive = false
     @State private var allowBackgroundLocation = false
     
@@ -21,15 +23,11 @@ struct SettingsView: View {
     @State private var showFileExporter = false
     @State private var fileExportDocument = JsonFile(initialText: "default file")
     
-    @Environment(LocationManager.self) var locationManager: LocationManager
-    @Environment(\.modelContext) private var modelContext
-    @Environment(ErrorAlertQueue.self) private var errorAlertQueue
-    
     private func handleLocationServiceToggle(newValue: Bool) -> Void {
         pendingLocationServiceChange = true
         
         if (newValue == true) {
-            locationManager.manager.requestAlwaysAuthorization()
+            appContext.locationManager.manager.requestAlwaysAuthorization()
         }
         
         pendingLocationServiceChange = false
@@ -39,12 +37,12 @@ struct SettingsView: View {
         
         if newValue {
             // turn on background monitoring
-            locationManager.manager.startUpdatingLocation()
-            locationManager.manager.startMonitoringVisits()
+            appContext.locationManager.manager.startUpdatingLocation()
+            appContext.locationManager.manager.startMonitoringVisits()
         } else {
             // turn off background monitoring
-            locationManager.manager.stopUpdatingLocation()
-            locationManager.manager.stopMonitoringVisits()
+            appContext.locationManager.manager.stopUpdatingLocation()
+            appContext.locationManager.manager.stopMonitoringVisits()
         }
         
     }
@@ -52,7 +50,7 @@ struct SettingsView: View {
     
     private func handleFileExportResult(_ result: Result<URL, any Error>) {
         if (type(of: result) == Error.self) {
-            errorAlertQueue.append(ErrorAlert(title: "could not save file", message: (result as! any Error).localizedDescription))
+            appContext.errorAlertQueue.append(ErrorAlert(title: "could not save file", message: (result as! any Error).localizedDescription))
         }
     }
     
@@ -60,7 +58,7 @@ struct SettingsView: View {
         List {
             Section(header: Text("Location Services")) {
                 Button("Force location update") {
-                    locationManager.manager.requestLocation()
+                    appContext.locationManager.manager.requestLocation()
                 }
 
                 Toggle(isOn: $locationServiceActive) {
@@ -117,10 +115,10 @@ struct SettingsView: View {
                 
                 Button {
                     do {
-                        fileExportDocument = try allDataToJSON(modelContext: modelContext)
+                        fileExportDocument = try allDataToJSON(modelContext: appContext.modelContainer.mainContext)
                         showFileExporter = true
                     } catch {
-                        errorAlertQueue.append(ErrorAlert(title: "failed to encode data to json", message: error.localizedDescription))
+                        appContext.errorAlertQueue.append(ErrorAlert(title: "failed to encode data to json", message: error.localizedDescription))
                     }
                 } label: {
                     HStack {
@@ -139,7 +137,7 @@ struct SettingsView: View {
         .onAppear {
             pendingLocationServiceChange = true
             
-            let locationAuthStatus = locationManager.manager.authorizationStatus
+            let locationAuthStatus = appContext.locationManager.manager.authorizationStatus
             switch(locationAuthStatus) {
             case .authorizedAlways:
                 locationServiceActive = true
@@ -160,15 +158,6 @@ struct SettingsView: View {
     }
 }
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
-    let alertQueue = ErrorAlertQueue()
-    
-    NavigationStack {
-        SettingsView()
-            .modelContainer(modelContainer)
-            .environment(locationManager)
-            .environment(alertQueue)
-    }
+#Preview(traits: .modifier(SampleAppContext())) {
+    SettingsView()
 }

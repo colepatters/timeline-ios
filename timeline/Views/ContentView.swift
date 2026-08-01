@@ -18,9 +18,8 @@ enum Tabs: Equatable, Hashable {
 }
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(AppContext.self) private var appContext
     @State private var selectedTab: Tabs = .home
-//    @ObservedObject var locationService: LocationService
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -47,12 +46,6 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
-    
-    
+#Preview(traits: .modifier(SampleAppContext())) {
     ContentView()
-        .modelContainer(modelContainer)
-        .environment(locationManager)
 }

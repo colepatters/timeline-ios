@@ -9,8 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Environment(LocationManager.self) var locationManager: LocationManager
+    @Environment(AppContext.self) private var appContext
     
     @State private var loggingQuickVisit: Bool = false
     
@@ -33,8 +32,8 @@ struct HomeView: View {
                 Section(header: Text("Quick Visits")) {
                     Button {
                         loggingQuickVisit = true
-                        locationManager.delegate.locationUpdateCallbackQueue.append { visit in
-                            modelContext.insert(QuickVisit(
+                        appContext.locationManager.delegate.locationUpdateCallbackQueue.append { visit in
+                            appContext.modelContainer.mainContext.insert(QuickVisit(
                                 arrival: visit.timestamp,
                                 source: .app,
                                 lat: visit.coordinate.latitude,
@@ -42,7 +41,7 @@ struct HomeView: View {
                             ))
                             loggingQuickVisit = false
                             }
-                        locationManager.manager.requestLocation()
+                        appContext.locationManager.manager.requestLocation()
                     } label: {
                         HStack {
                             Text("+ Log quick visit")
@@ -63,7 +62,7 @@ struct HomeView: View {
                 }
                 
                 Button {
-                    locationManager.manager.requestLocation()
+                    appContext.locationManager.manager.requestLocation()
                 } label: {
                     Text("Force location update")
                 }
@@ -73,14 +72,9 @@ struct HomeView: View {
     }
 }
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
-    
+#Preview(traits: .modifier(SampleAppContext())) {
     NavigationStack {
         HomeView()
-            .modelContainer(modelContainer)
-            .environment(locationManager)
     }
 }
 

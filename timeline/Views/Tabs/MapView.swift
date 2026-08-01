@@ -148,12 +148,11 @@ private struct MapItemSelectionDetailsSheetFeatureActions: View {
 }
 
 struct MapView: View {
+    @Environment(AppContext.self) private var appContext
     
     @Query var places: [Place]
     
     @State private var userLocation: CLLocation?
-    
-    @Environment(LocationManager.self) var locationManager: LocationManager
     
     @State private var selectedPlace: Place? = nil
     
@@ -183,8 +182,8 @@ struct MapView: View {
         }
         //        .mapFeatureSelectionAccessory(.callout)
         .onAppear {
-            locationManager.manager.requestLocation()
-            userLocation = locationManager.manager.location
+            appContext.locationManager.manager.requestLocation()
+            userLocation = appContext.locationManager.manager.location
         }
         .onChange(of: selection) {
             selectedPlace = places.first(where: { $0.lat == selection?.value?.location.coordinate.latitude && $0.lon == selection?.value?.location.coordinate.longitude })
@@ -210,10 +209,6 @@ struct MapView: View {
     }
 }
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
-    
+#Preview(traits: .modifier(SampleAppContext())) {
     MapView()
-        .modelContainer(modelContainer)
-        .environment(locationManager)}
+}

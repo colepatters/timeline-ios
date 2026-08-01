@@ -15,8 +15,6 @@ func groupVisits(visits: [ Visit ]) -> Dictionary<Date, [ Visit ]> {
 }
 
 struct HistoryView: View {
-    @Environment(\.modelContext) private var modelContext
-    
     @Query(sort: \Visit.timestamp, order: .reverse) var visits: [Visit]
     
     var body: some View {
@@ -72,7 +70,6 @@ struct HistoryViewListEntry: View {
     }
 }
 
-#Preview {
+#Preview(traits: .modifier(SampleAppContext())) {
     HistoryView()
-        .modelContainer(try! ModelContainer.sample())
 }

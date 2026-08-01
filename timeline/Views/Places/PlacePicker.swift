@@ -31,9 +31,8 @@ func sortPlacesByDistance(places: [Place], userLocation: CLLocation) -> [Place] 
 }
 
 struct PlacePicker: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(AppContext.self) private var appContext
     @Environment(\.dismiss) private var dismiss
-    @Environment(LocationManager.self) var locationManager: LocationManager
     
     @Query var places: [Place]
     
@@ -44,8 +43,10 @@ struct PlacePicker: View {
     
     var body: some View {
         
-        if (sortByDistance && locationManager.manager.location != nil) {
-            List(sortPlacesByDistance(places: filteredPlaces(places: places, searchText: searchQuery), userLocation: locationManager.manager.location!)) { place in
+        if(places.count == 0) {
+            Text("no places registered yet!")
+        } else if (sortByDistance && appContext.locationManager.manager.location != nil) {
+            List(sortPlacesByDistance(places: filteredPlaces(places: places, searchText: searchQuery), userLocation: appContext.locationManager.manager.location!)) { place in
                 Button {
                     handleSelection(place: place)
                 } label: {
@@ -58,7 +59,7 @@ struct PlacePicker: View {
             .searchable(text: $searchQuery)
             .onAppear {
                 if sortByDistance {
-                    locationManager.manager.requestLocation()
+                    appContext.locationManager.manager.requestLocation()
                 }
             }
         } else {
@@ -84,11 +85,6 @@ struct PlacePicker: View {
     }
 }
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
-
+#Preview(traits: .modifier(SampleAppContext())) {
     PlacePicker(sortByDistance: true)
-        .modelContainer(modelContainer)
-        .environment(locationManager)
 }
