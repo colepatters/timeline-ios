@@ -5,7 +5,7 @@
 //  Created by Cole Patterson on 10/4/25.
 //
 
-var samplePlace: Place = Place(id: nil, name: "Princess House", address: "7550 Cress View Dr, Prior Lake, MN  55372, United States", lat: 44.677488, lon: -93.367956)
+var samplePlace: Place = Place(id: nil, name: "Princess House", address: "7550 Cress View Dr, Prior Lake, MN  55372, United States", lat: 44.7142311, lon: -93.4257095)
 
 var samplePlaces: [Place] = [
     Place(id: nil, name: "Home", address: "16535 Tranquility Ct Se Prior Lake MN 55372", lat: 44.710309, lon: -93.434450),

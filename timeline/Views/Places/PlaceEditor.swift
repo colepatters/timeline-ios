@@ -27,6 +27,9 @@ struct PlaceEditor: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(LocationManager.self) var locationManager: LocationManager
     
+    private var suggestedCoordinateLabel: String? = nil
+    private var suggestedCoordinate: CLLocationCoordinate2D? = nil
+    
     init() {}
     
     init(place: Place) {
@@ -76,11 +79,24 @@ struct PlaceEditor: View {
                 
                 Section(header: Text("Autofill Options")) {
                     NavigationLink("Search for a place") {
-                        MapsSearch(handleMapItemSelection: handleMapItemSelection)
+                        if (suggestedCoordinate == nil) {
+                            MapsSearch() { mapItem in
+                                handleMapItemSelection(mapItem: mapItem)
+                            }
                             .navigationBarBackButtonHidden(false)
+                        } else {
+                            MapsSearch(
+                                suggestedCoordinateLabel: "label",
+                                suggestedCoordinate: suggestedCoordinate!
+                            ) { mapItem in
+                                handleMapItemSelection(mapItem: mapItem)
+                            }
+                            .navigationBarBackButtonHidden(false)
+                        }
+                        
                     }
                     NavigationLink("Choose from places nearby") {
-                        NearbyPlacePicker(locationManager: locationManager, handleSelect: handleMapItemSelection)
+                        NearbyPlacePicker(handleSelect: handleMapItemSelection)
                     }
                 }
             }
@@ -156,6 +172,8 @@ struct PlaceEditor: View {
                 modelContext.insert(newVisit)
             }
         } else {
+            // TODO check if place already exists
+            
             let newPlace = Place(id: nil, name: placeName, address: placeAddress, lat: Double(placeLat)!, lon: Double(placeLon)!)
             modelContext.insert(newPlace)
             

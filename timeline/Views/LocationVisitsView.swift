@@ -24,6 +24,7 @@ struct LocationVisitsView: View {
                 selectedVisit = visit
             } label: {
                 VStack(alignment: .leading) {
+                    // TODO if visit goes overnight show the departure date too
                     Text(visit.arrivalDate.formatted(date: .complete, time: .omitted)).font(.headline)
                     
                     Text("\(visit.arrivalDate.formatted(date: .omitted, time: .complete)) - \(visit.departureDate == Date.distantFuture ? "????" :  visit.departureDate.formatted(date: .omitted, time: .complete))")

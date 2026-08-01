@@ -8,6 +8,16 @@
 import Foundation
 import SwiftData
 
+/*
+ 
+ Check this out, I must've pulled this from claude or stack overflow at some point
+ 
+ private let searchLogging = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "Search Completions")
+ 
+ I guess there's already a subsustem built in for logging (not surprising)
+ 
+ */
+
 enum LogLevel: String, Codable {
     case info = "info"
     case warn = "warn"

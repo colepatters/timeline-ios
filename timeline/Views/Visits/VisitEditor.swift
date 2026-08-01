@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import MapKit
 
 struct VisitEditor: View {
     @Environment(\.modelContext) private var modelContext
@@ -17,6 +18,8 @@ struct VisitEditor: View {
     @State var visitPlace: Place? = nil
     @State private var visitTimestamp: Date = Date.now
     
+    private var mapItem: MKMapItem? = nil
+    
     init() {}
     
     init(visit: Visit) {
@@ -26,6 +29,11 @@ struct VisitEditor: View {
     init(place: Place, timestamp: Date? = nil) {
         _visitPlace = State(initialValue: place)
         self.visitTimestamp = timestamp ?? Date.now
+    }
+    
+    init(mapItem: MKMapItem, arrivalDate: Date) {
+        self.mapItem = mapItem
+        self.visitTimestamp = arrivalDate
     }
     
     var body: some View {
@@ -85,7 +93,16 @@ struct VisitEditor: View {
     
 }
 
-#Preview {
+#Preview("new visit") {
     VisitEditor()
+        .modelContainer(try! ModelContainer.sample())
+}
+
+#Preview("edit existing visit") {
+    
+    let place = Place(id: nil, name: "Home", address: "16535 Tranquility Ct Se Prior Lake MN 55372", lat: 44.710309, lon: -93.434450)
+    let visit = Visit(id: UUID(), place: place, timestamp: Date.now)
+    
+    VisitEditor(visit: visit)
         .modelContainer(try! ModelContainer.sample())
 }

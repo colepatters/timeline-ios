@@ -101,11 +101,22 @@ class LocationServiceDelegate: NSObject, CLLocationManagerDelegate {
                     lat: visit.coordinate.latitude,
                     lon: visit.coordinate.longitude,
                     arrivalDate: visit.arrivalDate,
+                    // TODO store departure date as nil if == Date.distantFuture
                     departureDate: visit.departureDate,
                     createdAt: Date.now
                 )
             )
         } else {
+            modelContext.insert(
+                QuickVisit(
+                    arrival: visit.arrivalDate,
+                    departure: visit.departureDate,
+                    source: .clvisit,
+                    lat: existingVisit!.lat,
+                    lon: existingVisit!.lon
+                )
+            )
+            
             existingVisit!.departureDate = visit.departureDate
             
             do {
@@ -118,6 +129,8 @@ class LocationServiceDelegate: NSObject, CLLocationManagerDelegate {
                         level: .error
                     )
                 )
+                
+                return
             }
         }
         
