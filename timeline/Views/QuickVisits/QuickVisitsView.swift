@@ -26,7 +26,6 @@ struct QuickVisitsView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .modifier(SampleAppContext())) {
     QuickVisitsView()
-        .modelContainer(try! ModelContainer.sample())
 }

@@ -18,6 +18,7 @@ func insertSampleData(modelContext: ModelContext) {
     for entry in sampleVisits {
         modelContext.insert(entry)
     }
+    
     modelContext.insert(Event(name: "Move"))
     modelContext.insert(Event(name: "Breakup"))
     
@@ -187,13 +188,4 @@ func insertSampleData(modelContext: ModelContext) {
             lon: -122.00891890
         )
     )
-}
-
-func reloadSampleData(modelContext: ModelContext) {
-    do {
-        modelContext.insert(LogEntry(body: "reloading sample data"))
-        insertSampleData(modelContext: modelContext)
-    } catch {
-        fatalError(error.localizedDescription)
-    }
 }

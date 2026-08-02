@@ -5,8 +5,8 @@
 //  Created by Cole Patterson on 12/19/25.
 //
 
-import SwiftData
 import Foundation
+import SwiftData
 
 public let globalDataSchema = Schema([
     Event.self,
@@ -17,11 +17,24 @@ public let globalDataSchema = Schema([
     Place.self,
     Visit.self,
     LogEntry.self,
-    QuickVisit.self
+    QuickVisit.self,
 ])
 
+func clearModelData(modelContext: ModelContext) throws {
+    try modelContext.delete(model: Event.self)
+    try modelContext.delete(model: EventCategory.self)
+    try modelContext.delete(model: EventType.self)
+    try modelContext.delete(model: LocationSnapshot.self)
+    try modelContext.delete(model: LocationVisit.self)
+    try modelContext.delete(model: Place.self)
+    try modelContext.delete(model: Visit.self)
+    try modelContext.delete(model: LogEntry.self)
+    try modelContext.delete(model: QuickVisit.self)
+}
+
 public func ConfigureModelContainer() -> ModelContainer {
-    let modelConfiguration = ModelConfiguration(schema: globalDataSchema, isStoredInMemoryOnly: false, cloudKitDatabase: .none)
+    let modelConfiguration = ModelConfiguration(
+        schema: globalDataSchema, isStoredInMemoryOnly: false, cloudKitDatabase: .none)
     do {
         return try ModelContainer(for: globalDataSchema, configurations: [modelConfiguration])
     } catch {
@@ -162,25 +175,27 @@ enum AppSchemaV1: VersionedSchema {
             return result
         }
     }
-    
+
     @Model
     class PlaceCategory: Identifiable {
         @Attribute(.unique) var id: UUID = UUID()
         var name: String
-        
+
         init(id: UUID?, name: String) {
             self.id = id ?? UUID()
             self.name = name
         }
-        
-        static func fromDTO(_ dto: PlaceCategoryDTO, in context: ModelContext) throws -> PlaceCategory {
+
+        static func fromDTO(_ dto: PlaceCategoryDTO, in context: ModelContext) throws
+            -> PlaceCategory
+        {
             guard let uuid = UUID(uuidString: dto.id) else {
                 throw PlaceCategoryFromDTOError.invalidUUID(uuidString: dto.id)
             }
-            
+
             return PlaceCategory(id: uuid, name: dto.name)
         }
-        
+
         func toDTO() -> PlaceCategoryDTO {
             return PlaceCategoryDTO(id: self.id.uuidString, name: self.name)
         }
@@ -230,9 +245,9 @@ enum AppSchemaV1: VersionedSchema {
 }
 
 /*
- 
+
  Type Aliases
- 
+
  */
 
 typealias AppSchema = AppSchemaV1

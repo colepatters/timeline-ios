@@ -22,7 +22,6 @@ struct EventsView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .modifier(SampleAppContext())) {
     EventsView()
-        .modelContainer(try! ModelContainer.sample())
 }

@@ -38,13 +38,8 @@ struct LogEntryView: View {
     }
 }
 
-#Preview {
-    let modelContainer = try! ModelContainer.sample()
-    let locationManager: LocationManager = LocationManager(modelContext: modelContainer.mainContext)
-    
+#Preview(traits: .modifier(SampleAppContext())) {
     NavigationStack {
         LogEntryView()
-            .modelContainer(modelContainer)
-            .environment(locationManager)
     }
 }

@@ -117,7 +117,10 @@ class LocationServiceDelegate: NSObject, CLLocationManagerDelegate {
                 )
             )
             
+            // TODO what's the difference?
+            existingVisit!.setValue(forKey: \.departureDate, to: visit.departureDate)
             existingVisit!.departureDate = visit.departureDate
+            // ---------------------------
             
             do {
                 try modelContext.save()

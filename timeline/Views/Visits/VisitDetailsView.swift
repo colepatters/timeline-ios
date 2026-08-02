@@ -72,5 +72,4 @@ struct VisitDetailsView: View {
 
 #Preview {
     VisitDetailsView(visit: sampleVisit)
-//        .modelContainer(try! ModelContainer.sample())
 }

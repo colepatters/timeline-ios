@@ -45,13 +45,14 @@ struct PlacesView: View {
                     }
                 }
             }
-            .navigationTitle("Places")
+            .navigationTitle("places")
             .navigationSubtitle("\(places.count) places registered")
         }
     }
 }
 
-#Preview {
-    PlacesView()
-        .modelContainer(try! ModelContainer.sample())
+#Preview(traits: .modifier(SampleAppContext())) {
+    NavigationStack {
+        PlacesView()
+    }
 }

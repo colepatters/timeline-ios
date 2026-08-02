@@ -95,7 +95,7 @@ struct SettingsView: View {
                 }
                 NavigationLink {
                     LocationVisitsView()
-                        .navigationTitle("Location visits")
+                        .navigationTitle("location visits")
                 } label: {
                     Text("View visits")
                 }
@@ -159,5 +159,7 @@ struct SettingsView: View {
 }
 
 #Preview(traits: .modifier(SampleAppContext())) {
-    SettingsView()
+    NavigationStack {
+        SettingsView()        
+    }
 }

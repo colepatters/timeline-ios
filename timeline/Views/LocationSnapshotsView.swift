@@ -23,7 +23,6 @@ struct LocationSnapshotsView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .modifier(SampleAppContext())) {
     LocationSnapshotsView()
-        .modelContainer(try! ModelContainer.sample())
 }

@@ -9,142 +9,10 @@ import SwiftUI
 import MapKit
 import SwiftData
 
-private struct MapItemSelectionDetailsSheet: View {
-    
-    var place: Place?
-    var feature: MapSelection<MKMapItem>?
-    
-    var handleDismiss: () -> Void
-    
-    init(place: Place? = nil, feature: MapSelection<MKMapItem>? = nil, _ handleDismiss: @escaping () -> Void) {
-        self.place = place
-        self.feature = feature
-        self.handleDismiss = handleDismiss
-    }
-    
-    var body: some View {
-        // header
-        VStack(alignment: .leading) {
-            HStack {
-                Text(place?.name ?? feature?.feature?.title ?? "unknown place")
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                Spacer()
-                
-                Button {
-                    handleDismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                }
-                .buttonStyle(.glass)
-            }
-            
-            if (self.place != nil) {
-                MapItemSelectionDetailsSheetPlaceActions(place: place!)
-            } else if (feature != nil && feature!.feature != nil) {
-                MapItemSelectionDetailsSheetFeatureActions(feature: feature!.feature!)
-            } else {
-                Text("you're seeing this because a condition didn't pass to give you any actions based on your selection")
-            }
-            
-            Spacer()
-        }
-    }
-}
-
-private struct MapItemSelectionDetailsSheetPlaceActions: View {
-    
-    var place: Place
-    
-    @Query private var visits: [ Visit ]
-    
-    init(place: Place) {
-        self.place = place
-        
-        let id = place.persistentModelID
-        var descriptor = FetchDescriptor<Visit>(
-            predicate: #Predicate { id == $0.place.persistentModelID },
-            sortBy: [
-                .init(\.timestamp)
-            ]
-        )
-        descriptor.fetchLimit = 5
-        
-        _visits = Query(descriptor)
-    }
-    
-    
-    var body: some View {
-        
-        VStack(alignment: .leading) {
-            if (visits.first != nil) {
-                Text("last visit")
-                    .fontWeight(.bold)
-                Text(visits.first!.timestamp.formatted())
-            }
-            
-            if (visits.isEmpty != true) {        
-                Text("visits")
-                    .fontWeight(.bold)
-                List(visits) { visit in
-                    NavigationLink {
-                        VisitDetailsView(visit: visit)
-                    } label: {
-                        Text(visit.timestamp.formatted())
-                    }
-                }
-                .listStyle(.plain)
-                .frame(maxWidth: .infinity)
-            }
-            
-            
-            NavigationLink {
-                VisitEditor(place: place)
-            } label: {
-                Text("log a visit")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
-            
-            NavigationLink {
-                PlaceDetailsView(place: place)
-            } label: {
-                Text("details")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
-        }
-    }
-}
-
-private struct MapItemSelectionDetailsSheetFeatureActions: View {
-    
-    var feature: MapFeature
-    
-    var body: some View {
-        NavigationLink {
-            PlaceEditor(mapFeature: feature)
-        } label: {
-            Text("add to places")
-                .frame(maxWidth: .infinity)
-            
-        }
-        .buttonStyle(.glassProminent)
-        .controlSize(.large)
-        
-        NavigationLink {
-            PlaceEditor(mapFeature: feature, logVisit: true)
-        } label: {
-            Text("add to places and log visit")
-                .frame(maxWidth: .infinity)
-            
-        }
-        .buttonStyle(.glassProminent)
-        .controlSize(.large)
-    }
+@Observable
+private class ViewModel {
+    var sheetDedents: Set<PresentationDetent> = [ .large, .height(400) ]
+    var selectedDedent: PresentationDetent = .height(400)
 }
 
 struct MapView: View {
@@ -158,6 +26,8 @@ struct MapView: View {
     
     @State private var selection: MapSelection<MKMapItem>? = nil
     @State private var cameraPosition: MapCameraPosition = .automatic
+    
+    @State private var vm = ViewModel()
     
     var body: some View {
         Map(position: $cameraPosition, selection: $selection) {
@@ -203,9 +73,177 @@ struct MapView: View {
                     selectedPlace = nil
                 }
                 .padding([.top, .leading, .trailing], 20)
+                .presentationDetents(vm.sheetDedents, selection: $vm.selectedDedent)
+                .environment(vm)
             }
-            .presentationDetents([ .height(400) ])
         }
+    }
+}
+
+private struct MapItemSelectionDetailsSheet: View {
+    @Environment(ViewModel.self) var vm
+    
+    var place: Place?
+    var feature: MapSelection<MKMapItem>?
+    
+    var handleDismiss: () -> Void
+    
+    init(place: Place? = nil, feature: MapSelection<MKMapItem>? = nil, _ handleDismiss: @escaping () -> Void) {
+        self.place = place
+        self.feature = feature
+        self.handleDismiss = handleDismiss
+    }
+    
+    var body: some View {
+        @Bindable var vm = vm
+        
+        // header
+        VStack(alignment: .leading) {
+            HStack {
+                Text(place?.name ?? feature?.feature?.title ?? "unknown place")
+                    .font(.title)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Button {
+                    handleDismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                }
+                .buttonStyle(.glass)
+            }
+            
+            if (self.place != nil) {
+                MapItemSelectionDetailsSheetPlaceActions(place: place!)
+                    .onAppear {
+                        vm.selectedDedent = .height(400)
+                    }
+            } else if (feature != nil && feature!.feature != nil) {
+                MapItemSelectionDetailsSheetFeatureActions(feature: feature!.feature!)
+                    .onAppear {
+                        vm.selectedDedent = .height(400)
+                    }
+            } else {
+                Text("you're seeing this because a condition didn't pass to give you any actions based on your selection")
+            }
+            
+            Spacer()
+        }
+    }
+}
+
+private struct MapItemSelectionDetailsSheetPlaceActions: View {
+    @Environment(ViewModel.self) var vm
+    
+    var place: Place
+    
+    @Query private var visits: [ Visit ]
+    
+    init(place: Place) {
+        self.place = place
+        
+        let id = place.persistentModelID
+        var descriptor = FetchDescriptor<Visit>(
+            predicate: #Predicate { id == $0.place.persistentModelID },
+            sortBy: [
+                .init(\.timestamp)
+            ]
+        )
+        descriptor.fetchLimit = 5
+        
+        _visits = Query(descriptor)
+    }
+    
+    
+    var body: some View {
+        @Bindable var vm = vm
+        
+        VStack(alignment: .leading) {
+            if (visits.first != nil) {
+                Text("last visit")
+                    .fontWeight(.bold)
+                Text(visits.first!.timestamp.formatted())
+            }
+            
+            if (visits.isEmpty != true) {        
+                Text("visits")
+                    .fontWeight(.bold)
+                List(visits) { visit in
+                    NavigationLink {
+                        VisitDetailsView(visit: visit)
+                            .onAppear {
+                                print("on appear")
+                                vm.selectedDedent = .large
+                            }
+                    } label: {
+                        Text(visit.timestamp.formatted())
+                    }
+                }
+                .listStyle(.plain)
+                .frame(maxWidth: .infinity)
+            }
+            
+            
+            NavigationLink {
+                VisitEditor(place: place)
+                    .onAppear {
+                        vm.selectedDedent = .large
+                    }
+            } label: {
+                Text("log a visit")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+            
+            NavigationLink {
+                PlaceDetailsView(place: place)
+                    .onAppear {
+                        vm.selectedDedent = .large
+                    }
+            } label: {
+                Text("details")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+        }
+    }
+}
+
+private struct MapItemSelectionDetailsSheetFeatureActions: View {
+    @Environment(ViewModel.self) var vm
+
+    var feature: MapFeature
+    
+    var body: some View {
+        @Bindable var vm = vm
+        
+        NavigationLink {
+            PlaceEditor(mapFeature: feature)
+                .onAppear {
+                    vm.selectedDedent = .large
+                }
+        } label: {
+            Text("add to places")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.glassProminent)
+        .controlSize(.large)
+        
+        NavigationLink {
+            PlaceEditor(mapFeature: feature, logVisit: true)
+                .onAppear {
+                    vm.selectedDedent = .large
+                }
+        } label: {
+            Text("add to places and log visit")
+                .frame(maxWidth: .infinity)
+            
+        }
+        .buttonStyle(.glassProminent)
+        .controlSize(.large)
     }
 }
 

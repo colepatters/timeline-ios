@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
 struct SampleAppContext: PreviewModifier {
     
@@ -17,11 +18,17 @@ struct SampleAppContext: PreviewModifier {
             fatalError("failed to create sample app context")
         }
         
+        try clearModelData(modelContext: appContext!.modelContainer.mainContext)
+        insertSampleData(modelContext: appContext!.modelContainer.mainContext)
+        
         return appContext!
     }
     
+    
+    
     func body(content: Content, context: AppContext) -> some View {
         content
+            .modelContainer(context.modelContainer)
             .environment(context)
     }
     
